@@ -1,0 +1,15 @@
+{{define "post"}}<!DOCTYPE html>
+<html lang="{{.Site.Config.Site.Language}}">
+<head>{{template "head" .}}</head>
+<body>
+  {{template "header" .}}
+  <main>
+    <article class="post">
+      <h1>{{.Post.Title}}</h1>
+      <time>{{dateFormat .Post.PubDate "2006-01-02"}}</time>
+      <div class="content">{{.Post.Body}}</div>
+    </article>
+  </main>
+  {{template "footer" .}}
+</body>
+</html>{{end}}

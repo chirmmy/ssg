@@ -1,0 +1,14 @@
+{{define "page"}}<!DOCTYPE html>
+<html lang="{{.Site.Config.Site.Language}}">
+<head>{{template "head" .}}</head>
+<body>
+  {{template "header" .}}
+  <main>
+    <article class="page">
+      <h1>{{.Page.Title}}</h1>
+      <div class="content">{{.Page.Body}}</div>
+    </article>
+  </main>
+  {{template "footer" .}}
+</body>
+</html>{{end}}

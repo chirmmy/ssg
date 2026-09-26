@@ -1,0 +1,12 @@
+{{define "blog-index"}}<!DOCTYPE html>
+<html lang="{{.Site.Config.Site.Language}}">
+<head>{{template "head" .}}</head>
+<body>
+  {{template "header" .}}
+  <main>
+    <h1>博客</h1>
+    {{range .Posts}}{{template "post-card" .}}{{end}}
+  </main>
+  {{template "footer" .}}
+</body>
+</html>{{end}}

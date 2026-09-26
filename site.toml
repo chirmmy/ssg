@@ -1,0 +1,15 @@
+[site]
+title = "Chirry's HomePage"
+description = "记录技术与思考"
+base_url = "https://anburger.site"
+author = "Chirrmy"
+language = "zh-CN"
+
+[build]
+workers = 8
+minify = false
+drafts = false
+out_dir = "dist"
+
+[markdown]
+highlight = "catppuccin-mocha"

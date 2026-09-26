@@ -1,0 +1,22 @@
+{{define "home"}}<!DOCTYPE html>
+<html lang="{{.Site.Config.Site.Language}}">
+<head>{{template "head" .}}</head>
+<body>
+  {{template "header" .}}
+  <main>
+    <section class="hero">
+      <h1>{{.Site.Config.Site.Title}}</h1>
+      <p>{{.Site.Config.Site.Description}}</p>
+      <div class="actions">
+        <a href="/blog/" class="btn">阅读文章</a>
+        <a href="/about/" class="btn ghost">关于我</a>
+      </div>
+    </section>
+    <section class="latest">
+      <h2>最新文章</h2>
+      {{range .Posts}}{{template "post-card" .}}{{end}}
+    </section>
+  </main>
+  {{template "footer" .}}
+</body>
+</html>{{end}}

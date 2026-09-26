@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chirry&#39;s HomePage</title>
+<meta name="description" content="记录技术与思考">
+<link rel="stylesheet" href="/style.css">
+<script>
+  const t = localStorage.getItem('theme');
+  if (t) document.documentElement.dataset.theme = t;
+</script>
+</head>
+<body>
+  
+<header class="site-header">
+  <a href="/" class="brand">Chirry&#39;s HomePage</a>
+  <nav>
+    <a href="/blog/">博客</a>
+    <a href="/about/">关于</a>
+  </nav>
+</header>
+
+  <main>
+    <h1>博客</h1>
+    
+<article class="post-card">
+  <a href="/blog/world/">
+    <h3>Hello World</h3>
+    <time>2026-09-26</time>
+    <p>第一篇文章</p>
+  </a>
+</article>
+
+  </main>
+  
+<footer class="site-footer">
+  <p>© 2026 Chirrmy</p>
+</footer>
+
+</body>
+</html>
