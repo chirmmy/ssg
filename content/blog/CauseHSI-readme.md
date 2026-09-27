@@ -1,8 +1,9 @@
 ---
 title: CauseHSI项目说明
-description: ""
-pubDate: 2025-07-21T22:57:57+08:00
-tags: ["随笔"]
+description: Readme for CauseHSI: Cross-scene Hyperspectral image classifaction via Causal Disentanglement
+pubDate: 2025-07-21
+Updated: 2025-07-21
+tags: ["开源", "README"]
 draft: false
 ---
 # 1 简介

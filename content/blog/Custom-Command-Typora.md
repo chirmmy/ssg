@@ -1,11 +1,10 @@
 ---
 title: Typora自定义图片上传服务
-date: 2025-08-08T13:00:00+08:00
-lastmod: 2025-08-08T13:00:00+08:00
-categories: [自动化工具]
-tags: [Typora,python,图床]
-mermaid: true
-cover: https://qiniu.anburger.site/cover/Tech.webp
+Description: Custome image uploader
+pubDate: 2025-08-08
+Updated: 2025-08-08
+tags: [Typora, python, 图床]
+draft: false
 ---
 
 

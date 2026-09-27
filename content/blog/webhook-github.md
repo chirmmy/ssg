@@ -1,9 +1,10 @@
 ---
 title: Webhook实现Github自动推送到Linux自动部署
-date: 2025-07-23T10:00:00+08:00
-lastmod: 2025-07-23T10:00:00+08:00
-cover: https://qiniu.anburger.site/cover/Tech.webp
-categories: [自动化工具, Github]
+description: "Usage of Github Wehook"
+pubDate: 2025-07-23
+Updated: 2025-07-23
+tags: [自动化工具, Github]
+draft: false
 ---
 
 :sunny: 场景：`Github`中代码更新后自动推送到服务器并部署
