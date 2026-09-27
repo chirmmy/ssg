@@ -1792,20 +1792,6 @@ html.theme-transition::view-transition-new(root) {
   text-wrap: nowrap;
 }
 
-/* 徽章 */
-.hero-fullscreen__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 6px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-bg-subtle);
-  color: var(--color-fg-muted);
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-8);
-}
-
 /* 副标题 */
 .hero-fullscreen__subtitle {
   font-size: clamp(1rem, 1.6vw, 1.25rem);
@@ -1860,7 +1846,6 @@ html.theme-transition::view-transition-new(root) {
 }
 
 /* Hero 内容依次上浮进场（不动画标题本身，避免影响 canvas 采样） */
-.js .hero-fullscreen__badge,
 .js .hero-fullscreen__subtitle,
 .js .hero-fullscreen__actions,
 .js .hero-fullscreen__social {
@@ -1868,7 +1853,6 @@ html.theme-transition::view-transition-new(root) {
   animation: hero-fade-up 700ms var(--ease-out) forwards;
 }
 
-.js .hero-fullscreen__badge    { animation-delay: 100ms; }
 .js .hero-fullscreen__subtitle { animation-delay: 250ms; }
 .js .hero-fullscreen__actions  { animation-delay: 400ms; }
 .js .hero-fullscreen__social   { animation-delay: 550ms; }
@@ -1926,7 +1910,6 @@ html.theme-transition::view-transition-new(root) {
 @media (prefers-reduced-motion: reduce) {
   .hero-fullscreen__scroll-hint { animation: none; }
 
-  .js .hero-fullscreen__badge,
   .js .hero-fullscreen__subtitle,
   .js .hero-fullscreen__actions,
   .js .hero-fullscreen__social {
