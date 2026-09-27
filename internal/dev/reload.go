@@ -14,6 +14,7 @@ type changeKind int
 const (
 	kindOther changeKind = iota
 	kindCSS
+	kindAsset
 	kindContent
 	kindTemplate
 	kindConfig
@@ -48,6 +49,19 @@ func (r *Reloader) Run(ctx context.Context) {
 }
 
 func (r *Reloader) handle(ctx context.Context, ev Event) {
+	kind := classify(ev.Path)
+
+	// assets 目录下的文件：dev server 直接从源目录提供，无需重建
+	if kind == kindCSS || kind == kindAsset {
+		slog.Info("asset change", "path", shortPath(ev.Path), "kind", kindName(kind))
+		if kind == kindCSS {
+			r.server.Hub().Broadcast("css")
+		} else {
+			r.server.Hub().Broadcast("reload")
+		}
+		return
+	}
+
 	r.mu.Lock()
 	if r.building {
 		r.pending = true
@@ -68,7 +82,6 @@ func (r *Reloader) handle(ctx context.Context, ev Event) {
 		}
 	}()
 
-	kind := classify(ev.Path)
 	slog.Info("change", "path", shortPath(ev.Path), "kind", kindName(kind))
 
 	start := time.Now()
@@ -84,19 +97,20 @@ func (r *Reloader) handle(ctx context.Context, ev Event) {
 
 	r.server.SetError(nil)
 	slog.Info("build ok", "took", elapsed)
-
-	switch kind {
-	case kindCSS:
-		r.server.Hub().Broadcast("css")
-	default:
-		r.server.Hub().Broadcast("reload")
-	}
+	r.server.Hub().Broadcast("reload")
 }
 
 func classify(path string) changeKind {
 	ext := strings.ToLower(filepath.Ext(path))
 	base := filepath.Base(path)
+	slash := filepath.ToSlash(path)
+
 	switch {
+	case strings.Contains(slash, "/assets/") || strings.HasPrefix(slash, "assets/"):
+		if ext == ".css" {
+			return kindCSS
+		}
+		return kindAsset
 	case ext == ".css":
 		return kindCSS
 	case ext == ".md":
@@ -119,6 +133,8 @@ func kindName(k changeKind) string {
 		return "template"
 	case kindConfig:
 		return "config"
+	case kindAsset:
+		return "asset"
 	}
 	return "other"
 }

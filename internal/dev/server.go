@@ -17,24 +17,26 @@ type BuildFunc func(ctx context.Context) error
 
 // Server 是开发服务器，负责托管产物、SSE、脚本注入
 type Server struct {
-	root     string
-	outDir   string
-	addr     string
-	autoOpen bool
-	build    BuildFunc
-	hub      *Hub
-	srv      *http.Server
-	lastErr  error // lastErr 保存最近一次构建错误，用于在页面请求时展示
+	root      string
+	outDir    string
+	assetsDir string // 源 assets 目录，dev 下直接从这里提供
+	addr      string
+	autoOpen  bool
+	build     BuildFunc
+	hub       *Hub
+	srv       *http.Server
+	lastErr   error // lastErr 保存最近一次构建错误，用于在页面请求时展示
 }
 
-func NewServer(root, outDir, addr string, build BuildFunc, autoOpen bool) *Server {
+func NewServer(root, outDir, assetsDir, addr string, build BuildFunc, autoOpen bool) *Server {
 	return &Server{
-		root:     root,
-		outDir:   outDir,
-		addr:     addr,
-		autoOpen: autoOpen,
-		build:    build,
-		hub:      NewHub(),
+		root:      root,
+		outDir:    outDir,
+		assetsDir: assetsDir,
+		addr:      addr,
+		autoOpen:  autoOpen,
+		build:     build,
+		hub:       NewHub(),
 	}
 }
 
@@ -109,6 +111,13 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		p = "/" + p
 	}
 
+	// dev 模式：直接从源 assets/ 目录提供，跳过 dist 缓存
+	if strings.HasPrefix(p, "/assets/") && s.assetsDir != "" {
+		if s.serveFromAssets(w, r, p) {
+			return
+		}
+	}
+
 	// 目录重定向：/about -> /about/
 	if p != "/" && !strings.HasSuffix(p, "/") && !strings.Contains(filepath.Base(p), ".") {
 		full := filepath.Join(s.outDir, filepath.FromSlash(strings.TrimPrefix(p, "/")))
@@ -118,11 +127,7 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	rel := strings.TrimPrefix(p, "/")
-	if rel == "" || strings.HasSuffix(p, "/") {
-		rel = filepath.Join(rel, "index.html")
-	}
-
+	rel := resolvePath(p)
 	full := filepath.Join(s.outDir, filepath.FromSlash(rel))
 
 	if _, err := os.Stat(full); err != nil {
@@ -225,6 +230,36 @@ func (s *Server) serveFile(w http.ResponseWriter, r *http.Request, full string) 
 	w.Header().Set("Content-Type", ctype)
 	w.Header().Set("Cache-Control", "no-store")
 	_, _ = w.Write(data)
+}
+
+// serveFromAssets 从源 assets/ 目录提供文件
+// 返回 true 表示已处理（成功或 404），false 表示继续走 dist 逻辑
+func (s *Server) serveFromAssets(w http.ResponseWriter, r *http.Request, p string) bool {
+	rel := strings.TrimPrefix(p, "/assets/")
+	if rel == "" || strings.Contains(rel, "..") {
+		return false
+	}
+	full := filepath.Join(s.assetsDir, filepath.FromSlash(rel))
+	if info, err := os.Stat(full); err != nil || info.IsDir() {
+		return false
+	}
+	data, err := os.ReadFile(full)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return true
+	}
+	w.Header().Set("Content-Type", contentType(full))
+	w.Header().Set("Cache-Control", "no-store")
+	_, _ = w.Write(data)
+	return true
+}
+
+func resolvePath(p string) string {
+	rel := strings.TrimPrefix(p, "/")
+	if rel == "" || strings.HasSuffix(rel, "/") {
+		return filepath.Join(rel, "index.html")
+	}
+	return rel
 }
 
 func contentType(p string) string {

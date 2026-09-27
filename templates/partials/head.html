@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{if .Title}}{{.Title}} · {{end}}{{.Site.Config.Site.Title}}</title>
 <meta name="description" content="{{.Site.Config.Site.Description}}">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="{{asset "style.css"}}">
 <script>
   const t = localStorage.getItem('theme');
   if (t) document.documentElement.dataset.theme = t;

@@ -25,7 +25,7 @@ Phase 1：核心管线
 - [x] 静态资源拷贝
 - [x] 开发服务器与热重载
 - [ ] RSS / sitemap / robots
-- [ ] CSS / JS 处理
+- [x] CSS / JS 处理
 - [ ] 增量构建
 - [ ] 搜索索引
 

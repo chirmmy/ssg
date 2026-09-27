@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			b := build.NewBuilder(cfg, root)
+			b := build.NewBuilder(cfg, root, false)
 
 			return b.Build(context.Background())
 		},
@@ -65,7 +66,7 @@ func main() {
 			defer cancel()
 
 			buildFn := func(ctx context.Context) error {
-				return build.NewBuilder(cfg, root).Build(ctx)
+				return build.NewBuilder(cfg, root, true).Build(ctx)
 			}
 
 			// 首次构建：失败不退出，让用户看到错误页并修复
@@ -74,7 +75,8 @@ func main() {
 			}
 
 			addr := fmt.Sprintf("%s:%d", devHost, devPort)
-			srv := dev.NewServer(root, cfg.Build.OutDir, addr, buildFn, devOpen)
+			assetsDir := filepath.Join(root, "assets")
+			srv := dev.NewServer(root, cfg.Build.OutDir, assetsDir, addr, buildFn, devOpen)
 
 			if err := buildFn(ctx); err != nil {
 				srv.SetError(err)

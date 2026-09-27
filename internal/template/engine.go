@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/chirmmy/ssg/internal/asset"
 )
 
 type Engine struct {
@@ -16,8 +18,8 @@ type Engine struct {
 	tmpl *template.Template
 }
 
-func (e *Engine) load(fsys fs.FS) error {
-	root := template.New("").Funcs(funcMap())
+func (e *Engine) load(fsys fs.FS, assets *asset.Manifest) error {
+	root := template.New("").Funcs(funcMap(assets))
 
 	err := fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -55,15 +57,15 @@ func (e *Engine) Render(w io.Writer, name string, data interface{}) error {
 	return e.tmpl.ExecuteTemplate(w, name, data)
 }
 
-func NewEngine(fysy fs.FS) (*Engine, error) {
+func NewEngine(fysy fs.FS, assets *asset.Manifest) (*Engine, error) {
 	e := &Engine{}
-	if err := e.load(fysy); err != nil {
+	if err := e.load(fysy, assets); err != nil {
 		return nil, err
 	}
 	return e, nil
 }
 
-func funcMap() template.FuncMap {
+func funcMap(assets *asset.Manifest) template.FuncMap {
 	return template.FuncMap{
 		"dateFormat": func(t time.Time, layout string) string {
 			if t.IsZero() {
@@ -73,6 +75,9 @@ func funcMap() template.FuncMap {
 		},
 		"year": func() int {
 			return time.Now().Year()
+		},
+		"asset": func(name string) string {
+			return assets.URL(name)
 		},
 	}
 }

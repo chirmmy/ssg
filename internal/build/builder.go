@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/chirmmy/ssg/internal/asset"
 	"github.com/chirmmy/ssg/internal/config"
 	"github.com/chirmmy/ssg/internal/content"
 	"github.com/chirmmy/ssg/internal/render"
@@ -18,17 +19,43 @@ import (
 type Builder struct {
 	Config *config.Config
 	Root   string
+	Dev    bool
 }
 
-func NewBuilder(cfg *config.Config, root string) *Builder {
+func NewBuilder(cfg *config.Config, root string, dev bool) *Builder {
 	return &Builder{
 		Config: cfg,
 		Root:   root,
+		Dev:    dev,
 	}
 }
 
 func (b *Builder) Build(ctx context.Context) error {
+	outDir := filepath.Join(b.Root, b.Config.Build.OutDir)
+	if err := os.RemoveAll(outDir); err != nil {
+		return err
+	}
 
+	// 1. 资源管线
+	pipeline := asset.NewPipeline(
+		filepath.Join(b.Root, "assets"),
+		filepath.Join(outDir, "assets"),
+		b.Dev,
+		b.Config.Build.Minify,
+	)
+	manifest, err := pipeline.Build(ctx)
+	if err != nil {
+		return fmt.Errorf("assets: %w", err)
+	}
+
+	// 生产模式下把 manifest 写到 dist/manifest.json
+	if !b.Dev {
+		if err := manifest.Save(filepath.Join(outDir, "manifest.json")); err != nil {
+			return fmt.Errorf("manifest: %w", err)
+		}
+	}
+
+	// 2. 内容管线
 	md := content.NewMarkdown(b.Config.Markdown.Highlight)
 	loader := content.NewLoader(
 		filepath.Join(b.Root, "content"),
@@ -43,24 +70,22 @@ func (b *Builder) Build(ctx context.Context) error {
 
 	s := site.NewSite(b.Config, items)
 
+	// 3. 模板引擎（注入 manifest）
 	tmplDir := filepath.Join(b.Root, "templates")
 	tmplFS := os.DirFS(tmplDir)
-	enginge, err := template.NewEngine(tmplFS)
+	enginge, err := template.NewEngine(tmplFS, manifest)
 	if err != nil {
 		return fmt.Errorf("load templates: %w", err)
 	}
 
-	outDir := filepath.Join(b.Root, b.Config.Build.OutDir)
-	if err := os.RemoveAll(outDir); err != nil {
-		return err
-	}
-
+	// 4. 渲染
 	renderer := render.NewRender(enginge, outDir, b.Config.Build.Workers)
 	routes := render.BuildRoutes(s)
 	if err := renderer.RenderAll(ctx, routes); err != nil {
 		return fmt.Errorf("render: %w", err)
 	}
 
+	// 5. 静态资源
 	if err := copyStatic(filepath.Join(b.Root, "static"), outDir); err != nil {
 		return fmt.Errorf("static: %w", err)
 	}
