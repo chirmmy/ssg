@@ -40,8 +40,14 @@
   var height = 0;
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-  var dots = [];        // { tx, ty, r, alpha, alive, respawnAt, spawnAt }
-  var colors = { fg: '#111', accent: '#2563eb' };
+  var dots = [];        // { tx, ty, r, alpha, kind, phase, color, alive, respawnAt, spawnAt }
+  var colors = { fg: '#111111', accent: '#2563eb', bg: '#ffffff' };
+  var colorsRgb = { fg: [17, 17, 17], accent: [37, 99, 235], bg: [255, 255, 255] };
+
+  // 吃豆粒子（吃掉豆子时的涟漪）
+  var particles = [];
+  var PARTICLE_LIFE = 450;
+  var MAX_PARTICLES = 60;
 
   var mouse = { x: 0, y: 0, active: false, lastMove: 0 };
 
@@ -62,10 +68,55 @@
 
   /* ---------- 颜色 ---------- */
 
+  function hexToRgb(hex) {
+    var m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((hex || '').trim());
+    if (!m) return null;
+    var h = m[1];
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    var n = parseInt(h, 16);
+    if (isNaN(n)) return null;
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function mixRgb(a, b, t) {
+    return [
+      Math.round(a[0] + (b[0] - a[0]) * t),
+      Math.round(a[1] + (b[1] - a[1]) * t),
+      Math.round(a[2] + (b[2] - a[2]) * t),
+    ];
+  }
+
+  function rgbStr(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+
   function readColors() {
     var cs = getComputedStyle(root);
     colors.fg = cs.getPropertyValue('--color-fg').trim() || '#111111';
     colors.accent = cs.getPropertyValue('--color-accent').trim() || '#2563eb';
+    colors.bg = cs.getPropertyValue('--color-bg').trim() || '#ffffff';
+    colorsRgb.fg = hexToRgb(colors.fg) || [17, 17, 17];
+    colorsRgb.accent = hexToRgb(colors.accent) || [37, 99, 235];
+    colorsRgb.bg = hexToRgb(colors.bg) || [255, 255, 255];
+  }
+
+  /* ---------- 豆子配色 ---------- */
+
+  // 文字豆：从左到右做 accent → fg 的水平渐变
+  function applyDotColors() {
+    for (var i = 0; i < dots.length; i++) {
+      var d = dots[i];
+      if (d.kind === 'pellet') {
+        d.color = colors.accent;
+        continue;
+      }
+      if (d.kind === 'text') {
+        var t = (d.tx / Math.max(1, width) - 0.02) / 0.55;
+        t = Math.min(1, Math.max(0, t));
+        t = t * t * (3 - 2 * t); // smoothstep
+        d.color = rgbStr(mixRgb(colorsRgb.accent, colorsRgb.fg, t));
+      } else {
+        d.color = colors.fg;
+      }
+    }
   }
 
   /* ---------- 文字采样 ---------- */
@@ -163,17 +214,25 @@
         var idx = (py * maskW + px) * 4;
         var inText = mask[idx + 3] > 128;
 
+        // 少量背景豆升级为「能量豆」：更大、带 accent 色、呼吸闪烁
+        var isPellet = !inText && Math.random() < 0.03;
+
         dots.push({
           tx: x,
           ty: y,
-          r: inText ? DOT_R_TEXT : DOT_R_BG,
-          alpha: inText ? DOT_A_TEXT : DOT_A_BG,
+          r: inText ? DOT_R_TEXT : (isPellet ? 2.6 : DOT_R_BG),
+          alpha: inText ? DOT_A_TEXT : (isPellet ? 0.9 : DOT_A_BG),
+          kind: inText ? 'text' : (isPellet ? 'pellet' : 'bg'),
+          phase: Math.random() * Math.PI * 2,
+          color: null,
           alive: true,
           respawnAt: 0,
           spawnAt: 0,
         });
       }
     }
+
+    applyDotColors();
 
     // 吃豆人初始位置：中心偏左上
     pacman.x = width * 0.5;
@@ -264,8 +323,37 @@
       if (dist2 < eatR2) {
         d.alive = false;
         d.respawnAt = now + RESPAWN_MIN + Math.random() * (RESPAWN_MAX - RESPAWN_MIN);
+        spawnParticles(d.tx, d.ty, d.kind === 'text' ? colors.accent : colors.fg);
       }
     }
+  }
+
+  /* ---------- 吃豆粒子 ---------- */
+
+  function spawnParticles(x, y, color) {
+    particles.push({ x: x, y: y, age: 0, life: PARTICLE_LIFE, color: color });
+    if (particles.length > MAX_PARTICLES) particles.shift();
+  }
+
+  function updateParticles(dt) {
+    for (var i = particles.length - 1; i >= 0; i--) {
+      particles[i].age += dt;
+      if (particles[i].age >= particles[i].life) particles.splice(i, 1);
+    }
+  }
+
+  function drawParticles() {
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      var t = p.age / p.life;
+      ctx.globalAlpha = (1 - t) * 0.55;
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3 + 16 * t, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
   }
 
   function updateRespawns(now) {
@@ -286,15 +374,24 @@
       if (!d.alive) continue;
 
       var alpha = d.alpha;
+      var r = d.r;
       var age = now - d.spawnAt;
       if (d.spawnAt > 0 && age < RESPAWN_FADE) {
         alpha *= age / RESPAWN_FADE;
       }
 
+      // 背景豆轻微闪烁，能量豆呼吸式脉动
+      if (d.kind === 'bg') {
+        alpha *= 0.8 + 0.2 * Math.sin(now * 0.0012 + d.phase);
+      } else if (d.kind === 'pellet') {
+        alpha *= 0.75 + 0.25 * Math.sin(now * 0.003 + d.phase);
+        r = d.r * (0.9 + 0.15 * Math.sin(now * 0.003 + d.phase));
+      }
+
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = colors.fg;
+      ctx.fillStyle = d.color || colors.fg;
       ctx.beginPath();
-      ctx.arc(d.tx, d.ty, d.r, 0, Math.PI * 2);
+      ctx.arc(d.tx, d.ty, r, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
@@ -308,11 +405,23 @@
     ctx.translate(pacman.x, pacman.y);
     ctx.rotate(pacman.angle);
 
+    // 光晕
+    ctx.shadowColor = colors.accent;
+    ctx.shadowBlur = 18;
+
     ctx.fillStyle = colors.accent;
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, PACMAN_RADIUS, mouthAngle, Math.PI * 2 - mouthAngle);
     ctx.closePath();
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    // 眼睛
+    ctx.fillStyle = colors.bg;
+    ctx.beginPath();
+    ctx.arc(PACMAN_RADIUS * 0.18, -PACMAN_RADIUS * 0.45, PACMAN_RADIUS * 0.16, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.restore();
@@ -321,6 +430,7 @@
   function draw(now) {
     ctx.clearRect(0, 0, width, height);
     drawDots(now);
+    drawParticles();
     drawPacman();
   }
 
@@ -335,6 +445,7 @@
     updatePacman(dt, now);
     eatDots(now);
     updateRespawns(now);
+    updateParticles(dt);
     draw(now);
 
     rafId = requestAnimationFrame(loop);
@@ -360,7 +471,7 @@
     for (var i = 0; i < dots.length; i++) {
       var d = dots[i];
       ctx.globalAlpha = d.alpha;
-      ctx.fillStyle = colors.fg;
+      ctx.fillStyle = d.color || colors.fg;
       ctx.beginPath();
       ctx.arc(d.tx, d.ty, d.r, 0, Math.PI * 2);
       ctx.fill();
@@ -437,6 +548,7 @@
 
   function onThemeChange() {
     readColors();
+    applyDotColors();
     if (reduceMotion) drawStatic();
   }
 
