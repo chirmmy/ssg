@@ -1,8 +1,8 @@
 [site]
-title = "Chirry's HomePage"
+title = "Chirmmy's HomePage"
 description = "记录技术与思考"
 base_url = "https://anburger.site"
-author = "Chirrmy"
+author = "Chirmmy"
 language = "zh-CN"
 
 [build]
