@@ -26,6 +26,7 @@ type Content struct {
 	SourcePath  string
 	Hash        string
 	Extra       map[string]any
+	ReadingTime int // 分钟
 }
 
 type Frontmatter struct {

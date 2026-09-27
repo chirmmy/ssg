@@ -47,19 +47,24 @@ func (e *Render) RenderAll(ctx context.Context, routes []Route) error {
 			if err := e.Templates.Render(buf, r.Template, r.Data); err != nil {
 				return fmt.Errorf("render %s: %w", r.Pattern, err)
 			}
-			return e.write(r.Pattern, buf.Bytes())
+			return e.write(r, buf.Bytes())
 		})
 	}
 	return g.Wait()
 }
 
-func (e *Render) write(pattern string, data []byte) error {
-	rel := strings.TrimPrefix(pattern, "/")
-	if rel == "" || strings.HasSuffix(pattern, "/") {
-		rel = filepath.Join(rel, "index.html")
-	}
-	if !strings.HasSuffix(rel, ".html") {
-		rel += ".html"
+func (e *Render) write(route Route, data []byte) error {
+	var rel string
+	if route.OutFile != "" {
+		rel = route.OutFile
+	} else {
+		rel = strings.TrimPrefix(route.Pattern, "/")
+		if rel == "" || strings.HasSuffix(route.Pattern, "/") {
+			rel = filepath.Join(rel, "index.html")
+		}
+		if !strings.HasSuffix(rel, ".html") {
+			rel += ".html"
+		}
 	}
 	out := filepath.Join(e.OutDir, filepath.FromSlash(rel))
 	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {

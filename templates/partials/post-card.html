@@ -1,9 +1,11 @@
 {{define "post-card"}}
 <article class="post-card">
-  <a href="/blog/{{.Slug}}/">
-    <h3>{{.Title}}</h3>
-    <time>{{dateFormat .PubDate "2006-01-02"}}</time>
-    <p>{{.Description}}</p>
-  </a>
+  <h2>
+    <a href="/blog/{{.Slug}}/">{{.Title}}</a>
+  </h2>
+  <time datetime="{{dateFormat .PubDate "2006-01-02"}}">
+    {{dateFormat .PubDate "2006-01-02"}}
+  </time>
+  <p>{{.Description}}</p>
 </article>
 {{end}}

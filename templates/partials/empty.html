@@ -1,0 +1,16 @@
+{{define "empty"}}
+<div class="empty">
+  <svg class="empty__icon" viewBox="0 0 64 64" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <rect x="10" y="16" width="44" height="36" rx="4"/>
+    <path d="M10 26h44"/>
+    <circle cx="16" cy="21" r="1.2" fill="currentColor"/>
+    <circle cx="22" cy="21" r="1.2" fill="currentColor"/>
+    <circle cx="28" cy="21" r="1.2" fill="currentColor"/>
+    <path d="M22 40h20M22 46h14" opacity="0.6"/>
+  </svg>
+  <h2 class="empty__title">{{.Title}}</h2>
+  <p class="empty__desc">{{.Desc}}</p>
+</div>
+{{end}}

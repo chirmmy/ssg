@@ -26,6 +26,7 @@ Phase 1：核心管线
 - [x] 开发服务器与热重载
 - [ ] RSS / sitemap / robots
 - [x] CSS / JS 处理
+- [x] UI OPT
 - [ ] 增量构建
 - [ ] 搜索索引
 

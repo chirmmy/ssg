@@ -2,20 +2,30 @@
 <html lang="{{.Site.Config.Site.Language}}">
 <head>{{template "head" .}}</head>
 <body>
+  <a href="#main" class="skip-link">跳到主内容</a>
   {{template "header" .}}
-  <main>
+  <main id="main" tabindex="-1">
     <section class="hero">
-      <h1>{{.Site.Config.Site.Title}}</h1>
-      <p>{{.Site.Config.Site.Description}}</p>
-      <div class="actions">
+      <h1 class="enter">{{.Site.Config.Site.Title}}</h1>
+      <p class="enter" data-enter-delay="1">{{.Site.Config.Site.Description}}</p>
+      <div class="actions enter" data-enter-delay="2">
         <a href="/blog/" class="btn">阅读文章</a>
         <a href="/about/" class="btn ghost">关于我</a>
       </div>
     </section>
+
+    {{if .Posts}}
     <section class="latest">
-      <h2>最新文章</h2>
-      {{range .Posts}}{{template "post-card" .}}{{end}}
+      <h2 class="enter" data-enter-delay="3">最新文章</h2>
+      <div class="post-list">
+        {{range $i, $p := .Posts}}
+          <div data-reveal {{if lt $i 4}}data-reveal-delay="{{$i}}"{{end}}>
+            {{template "post-card" $p}}
+          </div>
+        {{end}}
+      </div>
     </section>
+    {{end}}
   </main>
   {{template "footer" .}}
 </body>

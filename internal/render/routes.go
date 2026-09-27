@@ -8,6 +8,7 @@ type Route struct {
 	Pattern  string
 	Template string
 	Data     interface{}
+	OutFile  string // 可选。指定时直接用这个路径（相对 outDir）
 }
 
 type HomeData struct {
@@ -40,12 +41,24 @@ func BuildRoutes(s *site.Site) []Route {
 		})
 	}
 	for slug, page := range s.Pages {
-		pattern := "/" + slug + "/"
-		if slug == "index" {
-			pattern = "/"
+		switch slug {
+		case "index": // index.md 不作为独立页面输出，首页由 home 模板负责
+			continue
+		case "404":
+			routes = append(routes, Route{
+				Pattern:  "/404/",
+				Template: "404",
+				OutFile:  "404.html",
+				Data: map[string]any{
+					"Site": s,
+					"Page": page,
+				},
+			})
+			continue
 		}
+
 		routes = append(routes, Route{
-			Pattern:  pattern,
+			Pattern:  "/" + slug + "/",
 			Template: "page",
 			Data: map[string]interface{}{
 				"Site": s,

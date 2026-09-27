@@ -120,6 +120,7 @@ func (l *Loader) parse(_ context.Context, path string, kind Kind) (*Content, err
 	}
 
 	sum := sha256.Sum256(raw)
+	readingTime := estimateReadingTime(string(body))
 	return &Content{
 		Kind:        kind,
 		Slug:        slugFromPath(l.Root, path, kind),
@@ -133,6 +134,7 @@ func (l *Loader) parse(_ context.Context, path string, kind Kind) (*Content, err
 		Raw:         string(body),
 		SourcePath:  path,
 		Hash:        hex.EncodeToString(sum[:8]),
+		ReadingTime: readingTime,
 	}, nil
 }
 
@@ -174,4 +176,20 @@ func slugFromPath(root, path string, kind Kind) string {
 		rel = strings.TrimPrefix(rel, "blog/")
 	}
 	return filepath.ToSlash(rel)
+}
+
+// estimateReadingTime 按中文 400 字/分、英文 200 词/分估算。
+func estimateReadingTime(text string) int {
+	runes := 0
+	for _, r := range text {
+		if r > 0x2E80 { // 中日韩
+			runes++
+		}
+	}
+	words := len(strings.Fields(text))
+	minutes := float64(runes)/400 + float64(words)/200
+	if minutes < 1 {
+		return 1
+	}
+	return int(minutes + 0.5)
 }

@@ -3,9 +3,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{if .Title}}{{.Title}} · {{end}}{{.Site.Config.Site.Title}}</title>
 <meta name="description" content="{{.Site.Config.Site.Description}}">
-<link rel="stylesheet" href="{{asset "style.css"}}">
+
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{if .Title}}{{.Title}} · {{end}}{{.Site.Config.Site.Title}}">
+<meta property="og:description" content="{{.Site.Config.Site.Description}}">
+<meta property="og:url" content="{{.Site.Config.Site.BaseURL}}">
+<meta property="og:image" content="{{.Site.Config.Site.BaseURL}}/og.png">
+<meta property="og:site_name" content="{{.Site.Config.Site.Title}}">
+<meta property="og:locale" content="zh_CN">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{if .Title}}{{.Title}} · {{end}}{{.Site.Config.Site.Title}}">
+<meta name="twitter:description" content="{{.Site.Config.Site.Description}}">
+<meta name="twitter:image" content="{{.Site.Config.Site.BaseURL}}/og.png">
+
 <script>
-  const t = localStorage.getItem('theme');
-  if (t) document.documentElement.dataset.theme = t;
+  (function () {
+    document.documentElement.classList.add('js');
+    try {
+      var pref = localStorage.getItem('theme') || 'auto';
+      var effective = pref;
+      if (pref === 'auto') {
+        effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var root = document.documentElement;
+      root.setAttribute('data-theme', effective);
+      root.setAttribute('data-theme-preference', pref);
+    } catch (e) {}
+  })();
 </script>
+
+{{if isDev}}
+  <link rel="stylesheet" href="{{asset "style.css"}}">
+{{else}}
+  {{criticalCSS}}
+  <link rel="stylesheet" href="{{asset "style.css"}}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{asset "style.css"}}"></noscript>
+{{end}}
+
+<script src="{{asset "theme.js"}}" defer></script>
+<script src="{{asset "nav.js"}}" defer></script>
+<script src="{{asset "motion.js"}}" defer></script>
 {{end}}

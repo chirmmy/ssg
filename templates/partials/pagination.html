@@ -1,0 +1,27 @@
+{{define "pagination"}}
+{{if gt .TotalPages 1}}
+<nav class="pagination" aria-label="分页">
+  {{if .HasPrev}}
+    <a class="pagination__link" href="{{.PrevURL}}" rel="prev">上一页</a>
+  {{else}}
+    <span class="pagination__link" aria-disabled="true">上一页</span>
+  {{end}}
+
+  {{range .Pages}}
+    {{if .Current}}
+      <a class="pagination__link" href="{{.URL}}" aria-current="page">{{.Number}}</a>
+    {{else if .Ellipsis}}
+      <span class="pagination__ellipsis">…</span>
+    {{else}}
+      <a class="pagination__link" href="{{.URL}}">{{.Number}}</a>
+    {{end}}
+  {{end}}
+
+  {{if .HasNext}}
+    <a class="pagination__link" href="{{.NextURL}}" rel="next">下一页</a>
+  {{else}}
+    <span class="pagination__link" aria-disabled="true">下一页</span>
+  {{end}}
+</nav>
+{{end}}
+{{end}}

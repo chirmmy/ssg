@@ -5,47 +5,366 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chirmmy&#39;s HomePage</title>
 <meta name="description" content="记录技术与思考">
-<link rel="stylesheet" href="/assets/style.d84fdb67.css">
+
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Chirmmy&#39;s HomePage">
+<meta property="og:description" content="记录技术与思考">
+<meta property="og:url" content="https://anburger.site">
+<meta property="og:image" content="https://anburger.site/og.png">
+<meta property="og:site_name" content="Chirmmy&#39;s HomePage">
+<meta property="og:locale" content="zh_CN">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Chirmmy&#39;s HomePage">
+<meta name="twitter:description" content="记录技术与思考">
+<meta name="twitter:image" content="https://anburger.site/og.png">
+
 <script>
-  const t = localStorage.getItem('theme');
-  if (t) document.documentElement.dataset.theme = t;
+  (function () {
+    document.documentElement.classList.add('js');
+    try {
+      var pref = localStorage.getItem('theme') || 'auto';
+      var effective = pref;
+      if (pref === 'auto') {
+        effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var root = document.documentElement;
+      root.setAttribute('data-theme', effective);
+      root.setAttribute('data-theme-preference', pref);
+    } catch (e) {}
+  })();
 </script>
+
+
+  <style>/* ==========================================================================
+   Critical CSS
+   Inlined into <head> in production. Keep under ~3KB uncompressed.
+   Only contains above-the-fold styles.
+   ========================================================================== */
+
+:root {
+  /* Color */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f7f7f8;
+  --color-bg-elevated: #ffffff;
+  --color-fg: #111111;
+  --color-fg-muted: #666666;
+  --color-fg-subtle: #767676;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.16);
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-fg: #ffffff;
+
+  /* Spacing (subset) */
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Typography (subset) */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable",
+               "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans SC",
+               "Noto Sans CJK SC", "Helvetica Neue", Arial, sans-serif;
+
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-3xl: 2rem;
+
+  --leading-tight: 1.3;
+  --leading-relaxed: 1.75;
+
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Radius */
+  --radius-md: 6px;
+
+  /* Layout */
+  --content-width: 720px;
+  --wide-width: 1080px;
+  --page-padding: 1.25rem;
+  --header-height: 60px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #0e0e10;
+  --color-bg-subtle: #1a1a1c;
+  --color-bg-elevated: #1f1f22;
+  --color-fg: #e6e6e6;
+  --color-fg-muted: #a0a0a0;
+  --color-fg-subtle: #8a8a8a;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+  --color-accent: #60a5fa;
+  --color-accent-hover: #93c5fd;
+  --color-accent-fg: #0e0e10;
+}
+
+@media (min-width: 768px) {
+  :root { --page-padding: 2rem; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd { margin: 0; }
+img, picture, svg, video { display: block; max-width: 100%; height: auto; }
+button, input, select, textarea { font: inherit; }
+a { color: inherit; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.site-header {
+  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--header-height);
+  max-width: var(--wide-width);
+  margin: 0 auto;
+  padding: 0 var(--page-padding);
+}
+
+.site-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-fg);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-footer { flex: 0 0 auto; }
+
+main {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-8) var(--page-padding) var(--space-16);
+}
+
+h1 {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+  line-height: var(--leading-relaxed);
+}
+
+.hero {
+  padding: var(--space-12) 0 var(--space-8);
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw + 1rem, 2.75rem);
+  letter-spacing: -0.025em;
+  margin: 0 0 var(--space-4);
+}
+
+.hero p {
+  color: var(--color-fg-muted);
+  font-size: clamp(1rem, 1.5vw + 0.75rem, 1.125rem);
+  margin: 0 0 var(--space-6);
+  max-width: 44ch;
+}
+
+.content a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}</style>
+  <link rel="stylesheet" href="/assets/style.28422db0.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/assets/style.28422db0.css"></noscript>
+
+
+<script src="/assets/theme.557fa21f.js" defer></script>
+<script src="/assets/nav.a8666484.js" defer></script>
+<script src="/assets/motion.d712300e.js" defer></script>
 </head>
 <body>
+  <a href="#main" class="skip-link">跳到主内容</a>
   
 <header class="site-header">
-  <a href="/" class="brand">Chirmmy&#39;s HomePage</a>
-  <nav>
-    <a href="/blog/">博客</a>
-    <a href="/about/">关于</a>
-  </nav>
+  <div class="container container--wide site-header__inner">
+    <a href="/" class="site-header__brand">
+      <svg class="site-header__mark" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <path d="M9 16V8l6 8V8"/>
+      </svg>
+      <span class="site-header__name">Chirmmy&#39;s HomePage</span>
+    </a>
+
+    <button
+      type="button"
+      class="nav-toggle"
+      data-nav-toggle
+      aria-label="打开菜单"
+      aria-expanded="false"
+      aria-controls="site-nav"
+    >
+      <svg
+        class="nav-toggle__icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 6h18M3 12h18M3 18h18"></path>
+      </svg>
+    </button>
+
+    <nav
+      class="site-header__nav"
+      id="site-nav"
+      data-nav
+      aria-label="主导航"
+    >
+      <a href="/blog/">博客</a>
+      <a href="/about/">关于</a>
+    </nav>
+
+    <div class="site-header__actions">
+      <button
+        type="button"
+        class="theme-toggle"
+        data-theme-toggle
+        aria-label="切换主题"
+      >
+        <span class="theme-toggle__icon" data-theme-icon="auto" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 3v18"></path>
+            <path d="M12 3a9 9 0 0 1 0 18" fill="currentColor" stroke="none"></path>
+          </svg>
+        </span>
+        <span class="theme-toggle__icon" data-theme-icon="light" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </span>
+        <span class="theme-toggle__icon" data-theme-icon="dark" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+  </div>
 </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <section class="hero">
-      <h1>Chirmmy&#39;s HomePage</h1>
-      <p>记录技术与思考</p>
-      <div class="actions">
+      <h1 class="enter">Chirmmy&#39;s HomePage</h1>
+      <p class="enter" data-enter-delay="1">记录技术与思考</p>
+      <div class="actions enter" data-enter-delay="2">
         <a href="/blog/" class="btn">阅读文章</a>
         <a href="/about/" class="btn ghost">关于我</a>
       </div>
     </section>
+
+    
     <section class="latest">
-      <h2>最新文章</h2>
-      
+      <h2 class="enter" data-enter-delay="3">最新文章</h2>
+      <div class="post-list">
+        
+          <div data-reveal data-reveal-delay="0">
+            
 <article class="post-card">
-  <a href="/blog/world/">
-    <h3>Hello World</h3>
-    <time>2026-09-26</time>
-    <p>第一篇文章</p>
-  </a>
+  <h2>
+    <a href="/blog/world/">Hello World</a>
+  </h2>
+  <time datetime="2026-09-26">
+    2026-09-26
+  </time>
+  <p>第一篇文章</p>
 </article>
 
+          </div>
+        
+      </div>
     </section>
+    
   </main>
   
 <footer class="site-footer">
-  <p>© 2026 Chirmmy</p>
+  <div class="container container--wide site-footer__inner">
+    <p>© 2026 Chirmmy</p>
+    <nav class="site-footer__links" aria-label="社交链接">
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:you@example.com">Email</a>
+      <a href="/rss.xml">RSS</a>
+    </nav>
+  </div>
 </footer>
 
 </body>

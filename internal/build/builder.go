@@ -14,6 +14,8 @@ import (
 	"github.com/chirmmy/ssg/internal/render"
 	"github.com/chirmmy/ssg/internal/site"
 	"github.com/chirmmy/ssg/internal/template"
+	"github.com/tdewolff/minify/v2"
+	"github.com/tdewolff/minify/v2/css"
 )
 
 type Builder struct {
@@ -70,10 +72,21 @@ func (b *Builder) Build(ctx context.Context) error {
 
 	s := site.NewSite(b.Config, items)
 
-	// 3. 模板引擎（注入 manifest）
+	// 3. 读取关键 CSS
+	criticalCSS, err := loadCriticalCSS(b.Root, b.Config.Build.Minify, b.Dev)
+	if err != nil {
+		return fmt.Errorf("critical css: %w", err)
+	}
+
+	// 4. 模板引擎（注入 manifest）
 	tmplDir := filepath.Join(b.Root, "templates")
 	tmplFS := os.DirFS(tmplDir)
-	enginge, err := template.NewEngine(tmplFS, manifest)
+	enginge, err := template.NewEngine(template.Options{
+		FS:          tmplFS,
+		Assets:      manifest,
+		CriticalCSS: criticalCSS,
+		Dev:         b.Dev,
+	})
 	if err != nil {
 		return fmt.Errorf("load templates: %w", err)
 	}
@@ -115,6 +128,31 @@ func copyStatic(src, dst string) error {
 		}
 		return os.WriteFile(target, data, 0o644)
 	})
+}
+
+// loadCriticalCSS 读取 assets/critical.css。
+// dev 模式不返回（避免影响热替换），prod 模式返回压缩后的内容。
+func loadCriticalCSS(root string, minifyEnabled, dev bool) (string, error) {
+	if dev {
+		return "", nil
+	}
+	path := filepath.Join(root, "assets", "critical.css")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	if minifyEnabled {
+		m := minify.New()
+		m.AddFunc("text/css", css.Minify)
+		out, err := m.Bytes("text/css", data)
+		if err == nil {
+			return string(out), nil
+		}
+	}
+	return string(data), nil
 }
 
 var _ = embed.FS{}
