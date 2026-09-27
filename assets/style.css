@@ -1729,9 +1729,8 @@ html.theme-transition::view-transition-new(root) {
 
 .hero-fullscreen__content {
   position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 960px;
+  z-index: 2;
+  width: min(92vw, 1400px);
   padding: 0 var(--page-padding);
   text-align: center;
   pointer-events: none;
@@ -1739,13 +1738,13 @@ html.theme-transition::view-transition-new(root) {
 }
 
 .hero-fullscreen__title {
-  font-size: clamp(3rem, 13vw, 9rem);
+  font-size: clamp(2.75rem, 9.5vw, 8rem);
   font-weight: var(--weight-bold);
-  line-height: 0.95;
+  line-height: 1;
   letter-spacing: -0.045em;
-  margin: 0 0 var(--space-8);
+  margin: 0 0 var(--space-10);
   color: var(--color-fg);
-  text-wrap: balance;
+  text-wrap: nowrap;
 }
 
 /* .hero-fullscreen__subtitle {
