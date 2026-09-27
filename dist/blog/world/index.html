@@ -45,184 +45,12 @@
 </script>
 
 
-  <style>/* ==========================================================================
-   Critical CSS
-   Inlined into <head> in production. Keep under ~3KB uncompressed.
-   Only contains above-the-fold styles.
-   ========================================================================== */
-
-:root {
-  /* Color */
-  --color-bg: #ffffff;
-  --color-bg-subtle: #f7f7f8;
-  --color-bg-elevated: #ffffff;
-  --color-fg: #111111;
-  --color-fg-muted: #666666;
-  --color-fg-subtle: #767676;
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-strong: rgba(0, 0, 0, 0.16);
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-accent-fg: #ffffff;
-
-  /* Spacing (subset) */
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-
-  /* Typography (subset) */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable",
-               "Segoe UI", "PingFang SC", "Hiragino Sans GB",
-               "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans SC",
-               "Noto Sans CJK SC", "Helvetica Neue", Arial, sans-serif;
-
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-3xl: 2rem;
-
-  --leading-tight: 1.3;
-  --leading-relaxed: 1.75;
-
-  --weight-medium: 500;
-  --weight-semibold: 600;
-  --weight-bold: 700;
-
-  /* Radius */
-  --radius-md: 6px;
-
-  /* Layout */
-  --content-width: 720px;
-  --wide-width: 1080px;
-  --page-padding: 1.25rem;
-  --header-height: 60px;
-}
-
-[data-theme="dark"] {
-  --color-bg: #0e0e10;
-  --color-bg-subtle: #1a1a1c;
-  --color-bg-elevated: #1f1f22;
-  --color-fg: #e6e6e6;
-  --color-fg-muted: #a0a0a0;
-  --color-fg-subtle: #8a8a8a;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
-  --color-accent: #60a5fa;
-  --color-accent-hover: #93c5fd;
-  --color-accent-fg: #0e0e10;
-}
-
-@media (min-width: 768px) {
-  :root { --page-padding: 2rem; }
-}
-
-*, *::before, *::after { box-sizing: border-box; }
-
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-
-body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd { margin: 0; }
-img, picture, svg, video { display: block; max-width: 100%; height: auto; }
-button, input, select, textarea { font: inherit; }
-a { color: inherit; }
-
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: var(--leading-relaxed);
-  color: var(--color-fg);
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.site-header {
-  flex: 0 0 auto;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.site-header__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  height: var(--header-height);
-  max-width: var(--wide-width);
-  margin: 0 auto;
-  padding: 0 var(--page-padding);
-}
-
-.site-header__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-weight: var(--weight-semibold);
-  font-size: var(--text-base);
-  color: var(--color-fg);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.site-footer { flex: 0 0 auto; }
-
-main {
-  flex: 1 0 auto;
-  width: 100%;
-  max-width: var(--content-width);
-  margin: 0 auto;
-  padding: var(--space-8) var(--page-padding) var(--space-16);
-}
-
-h1 {
-  font-size: var(--text-3xl);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-tight);
-  letter-spacing: -0.02em;
-}
-
-p {
-  margin: 0;
-  line-height: var(--leading-relaxed);
-}
-
-.hero {
-  padding: var(--space-12) 0 var(--space-8);
-}
-
-.hero h1 {
-  font-size: clamp(2rem, 5vw + 1rem, 2.75rem);
-  letter-spacing: -0.025em;
-  margin: 0 0 var(--space-4);
-}
-
-.hero p {
-  color: var(--color-fg-muted);
-  font-size: clamp(1rem, 1.5vw + 0.75rem, 1.125rem);
-  margin: 0 0 var(--space-6);
-  max-width: 44ch;
-}
-
-.content a {
-  color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}</style>
-  <link rel="stylesheet" href="/assets/style.28422db0.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="/assets/style.28422db0.css"></noscript>
+  <link rel="stylesheet" href="/assets/style.css">
 
 
-<script src="/assets/theme.557fa21f.js" defer></script>
-<script src="/assets/nav.a8666484.js" defer></script>
-<script src="/assets/motion.d712300e.js" defer></script>
+<script src="/assets/theme.js" defer></script>
+<script src="/assets/nav.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 </head>
 <body>
   <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
@@ -461,8 +289,8 @@ p {
   </div>
 </footer>
 
-  <script src="/assets/code.6a7c517f.js" defer></script>
-  <script src="/assets/toc.0880fe5b.js" defer></script>
+  <script src="/assets/code.js" defer></script>
+  <script src="/assets/toc.js" defer></script>
   <script src="/assets/reading-progress.js" defer></script>
 </body>
 </html>

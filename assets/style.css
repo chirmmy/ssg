@@ -1692,3 +1692,142 @@ html.theme-transition::view-transition-new(root) {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   35. Home — Fullscreen Hero
+   ========================================================================== */
+
+.home-main {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
+.home-main > * + * { margin-top: 0; }
+
+.hero-fullscreen {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.hero-fullscreen__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.hero-fullscreen__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 960px;
+  padding: 0 var(--page-padding);
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.hero-fullscreen__title {
+  font-size: clamp(3rem, 13vw, 9rem);
+  font-weight: var(--weight-bold);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  margin: 0 0 var(--space-8);
+  color: var(--color-fg);
+  text-wrap: balance;
+}
+
+/* .hero-fullscreen__subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+  margin: 0 0 var(--space-8);
+  text-wrap: balance;
+} */
+
+/* canvas 接管后隐藏 DOM 文本 */
+.js.hero-ready .hero-fullscreen__title {
+  color: transparent;
+  user-select: none;
+}
+/* .js.hero-ready .hero-fullscreen__title,
+.js.hero-ready .hero-fullscreen__subtitle {
+  color: transparent;
+  user-select: none;
+} */
+
+
+.hero-fullscreen__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.hero-fullscreen__scroll-hint {
+  position: absolute;
+  bottom: var(--space-8);
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-fg-subtle);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: scroll-hint 2.4s var(--ease-in-out) infinite;
+}
+
+.hero-fullscreen__scroll-hint svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes scroll-hint {
+  0%, 100% { transform: translate(-50%, 0); opacity: 0.5; }
+  50%      { transform: translate(-50%, 6px); opacity: 1; }
+}
+
+/* 内容区 */
+.home-latest {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-16) var(--page-padding) var(--space-16);
+}
+
+.home-latest h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  margin: 0 0 var(--space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fullscreen__scroll-hint { animation: none; }
+}
+
+/* 吃豆人 canvas 光标 */
+.hero-fullscreen__canvas[data-hero-pacman] {
+  cursor: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hero-fullscreen__canvas[data-hero-pacman] {
+    cursor: auto;
+  }
+}
