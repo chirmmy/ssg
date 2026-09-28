@@ -15,9 +15,7 @@
   /* ---------- 可调参数 ---------- */
 
   var GAP = 14;                 // 豆子网格间距
-  var DOT_R_TEXT = 2.6;         // 文字豆半径
   var DOT_R_BG = 1.1;           // 背景豆半径
-  var DOT_A_TEXT = 1.0;         // 文字豆透明度
   var DOT_A_BG = 0.14;          // 背景豆透明度
 
   var PACMAN_RADIUS = 12;       // 吃豆人半径
@@ -78,16 +76,6 @@
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
 
-  function mixRgb(a, b, t) {
-    return [
-      Math.round(a[0] + (b[0] - a[0]) * t),
-      Math.round(a[1] + (b[1] - a[1]) * t),
-      Math.round(a[2] + (b[2] - a[2]) * t),
-    ];
-  }
-
-  function rgbStr(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
-
   function readColors() {
     var cs = getComputedStyle(root);
     colors.fg = cs.getPropertyValue('--color-fg').trim() || '#111111';
@@ -100,92 +88,11 @@
 
   /* ---------- 豆子配色 ---------- */
 
-  // 文字豆：从左到右做 accent → fg 的水平渐变
   function applyDotColors() {
     for (var i = 0; i < dots.length; i++) {
       var d = dots[i];
-      if (d.kind === 'pellet') {
-        d.color = colors.accent;
-        continue;
-      }
-      if (d.kind === 'text') {
-        var t = (d.tx / Math.max(1, width) - 0.02) / 0.55;
-        t = Math.min(1, Math.max(0, t));
-        t = t * t * (3 - 2 * t); // smoothstep
-        d.color = rgbStr(mixRgb(colorsRgb.accent, colorsRgb.fg, t));
-      } else {
-        d.color = colors.fg;
-      }
+      d.color = d.kind === 'pellet' ? colors.accent : colors.fg;
     }
-  }
-
-  /* ---------- 文字采样 ---------- */
-
-  function buildTextMask() {
-    var w = Math.max(1, Math.round(width));
-    var h = Math.max(1, Math.round(height));
-
-    var off = document.createElement('canvas');
-    off.width = w;
-    off.height = h;
-    var octx = off.getContext('2d');
-    octx.clearRect(0, 0, w, h);
-
-    var canvasRect = canvas.getBoundingClientRect();
-    var els = content.querySelectorAll('[data-hero-text]');
-
-    els.forEach(function (el) {
-      var cs = getComputedStyle(el);
-      var fontSize = parseFloat(cs.fontSize);
-
-      // 关键修复 1：优先用 cs.font（完整简写），保证 canvas 与 DOM 同源
-      var fontStr = (cs.font || '').trim();
-      if (!fontStr || fontStr.indexOf('px') === -1) {
-        // 回退：手动拼，但用 cs.fontSize 保留原始单位
-        fontStr = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
-      }
-      octx.font = fontStr;
-
-      var lineHeight = parseFloat(cs.lineHeight);
-      if (!lineHeight) lineHeight = fontSize * 1.3;
-
-      var elRect = el.getBoundingClientRect();
-
-      octx.fillStyle = '#ffffff';
-      octx.textBaseline = 'middle';
-      octx.textAlign = 'center';
-
-      var relX = elRect.left - canvasRect.left;
-      var relY = elRect.top - canvasRect.top;
-
-      var text = (el.textContent || '').trim();
-      if (!text) return;
-
-      var maxWidth = elRect.width + 4;
-      var lines = [];
-      var chars = Array.from(text);
-      var currentLine = '';
-
-      for (var i = 0; i < chars.length; i++) {
-        var test = currentLine + chars[i];
-        if (octx.measureText(test).width > maxWidth && currentLine) {
-          lines.push(currentLine);
-          currentLine = chars[i];
-        } else {
-          currentLine = test;
-        }
-      }
-      if (currentLine) lines.push(currentLine);
-
-      var totalHeight = lines.length * lineHeight;
-      var startY = relY + (elRect.height - totalHeight) / 2 + lineHeight / 2;
-
-      lines.forEach(function (line, idx) {
-        octx.fillText(line, relX + elRect.width / 2, startY + idx * lineHeight);
-      });
-    });
-
-    return octx.getImageData(0, 0, w, h).data;
   }
 
   /* ---------- 构建豆子网格 ---------- */
@@ -200,29 +107,19 @@
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    var mask = buildTextMask();
-    var maskW = Math.round(width);
-    var maskH = Math.round(height);
-
     dots = [];
 
     for (var y = GAP / 2; y < height; y += GAP) {
       for (var x = GAP / 2; x < width; x += GAP) {
-        var px = Math.round(x);
-        var py = Math.round(y);
-        if (px < 0 || py < 0 || px >= maskW || py >= maskH) continue;
-        var idx = (py * maskW + px) * 4;
-        var inText = mask[idx + 3] > 128;
-
         // 少量背景豆升级为「能量豆」：更大、带 accent 色、呼吸闪烁
-        var isPellet = !inText && Math.random() < 0.03;
+        var isPellet = Math.random() < 0.03;
 
         dots.push({
           tx: x,
           ty: y,
-          r: inText ? DOT_R_TEXT : (isPellet ? 2.6 : DOT_R_BG),
-          alpha: inText ? DOT_A_TEXT : (isPellet ? 0.9 : DOT_A_BG),
-          kind: inText ? 'text' : (isPellet ? 'pellet' : 'bg'),
+          r: isPellet ? 2.6 : DOT_R_BG,
+          alpha: isPellet ? 0.9 : DOT_A_BG,
+          kind: isPellet ? 'pellet' : 'bg',
           phase: Math.random() * Math.PI * 2,
           color: null,
           alive: true,
@@ -241,8 +138,6 @@
 
     // 初始漫游目标
     pickWanderTarget(performance.now());
-
-    root.classList.add('hero-ready');
   }
 
   /* ---------- 吃豆人 ---------- */
@@ -569,6 +464,58 @@
     });
   }
 
+  /* ---------- 描边标题（逐字拆分） ---------- */
+
+  var LETTER_STAGGER_MS = 90;   // 相邻字母描边起始间隔
+  var LETTER_DRAW_MS = 1100;    // 单个字母描边时长（与 CSS 保持一致）
+  var TITLE_FONT_SIZE = 110;    // 与 CSS .hero-title-stroke__text 保持一致
+
+  function setupTitleStroke() {
+    var svg = document.querySelector('[data-title-stroke]');
+    if (!svg) return;
+    var textEl = svg.querySelector('[data-stroke-text]');
+    if (!textEl) return;
+
+    var title = (textEl.textContent || '').trim();
+    if (!title) return;
+
+    // 字体加载完成后用 canvas 精确测量每个字符宽度
+    var cs = getComputedStyle(textEl);
+    var measure = document.createElement('canvas').getContext('2d');
+    measure.font = cs.fontWeight + ' ' + TITLE_FONT_SIZE + 'px ' + cs.fontFamily;
+
+    var pad = 40;
+    var baseY = 170;
+    var x = pad;
+    var frag = document.createDocumentFragment();
+    var chars = Array.from(title);
+
+    for (var i = 0; i < chars.length; i++) {
+      var ch = chars[i];
+      var w = measure.measureText(ch).width;
+
+      if (ch !== ' ') {
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', x.toFixed(1));
+        t.setAttribute('y', baseY);
+        t.setAttribute('class', 'hero-title-stroke__text');
+        // 逐字描边：延迟 = 起始延迟 + 序号 × 间隔；总时长兜底 +100ms
+        t.style.animationDelay =
+          (300 + i * LETTER_STAGGER_MS) + 'ms, ' +
+          (300 + i * LETTER_STAGGER_MS + LETTER_DRAW_MS + 100) + 'ms';
+        t.textContent = ch;
+        frag.appendChild(t);
+      }
+
+      x += w;
+    }
+
+    // 按实际文本宽度收紧 viewBox，保证任何标题都能完整显示
+    svg.setAttribute('viewBox', '0 0 ' + Math.ceil(x + pad) + ' 220');
+    textEl.remove();
+    svg.appendChild(frag);
+  }
+
   /* ---------- 初始化 ---------- */
 
   function init() {
@@ -579,6 +526,7 @@
       : Promise.resolve();
 
     ready.then(function () {
+      setupTitleStroke();
       build();
 
       if (reduceMotion) {
