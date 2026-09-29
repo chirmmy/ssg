@@ -1,8 +1,10 @@
 ---
 title: Nodejs笔记
-date: 2025-08-07T19:00:00+08:00
-lastmod: 2025-08-07T19:00:00+08:00
-categories: [笔记,Nodejs]
+description: Nodejs学习笔记
+pubDate: 2025-08-07T19:00:00+08:00
+updated: 2025-08-07T19:00:00+08:00
+tags: [笔记, Nodejs]
+draft: false
 cover: https://qiniu.anburger.site/cover/Note.webp
 ---
 # Nodejs学习笔记

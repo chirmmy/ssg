@@ -198,6 +198,32 @@ main {
   padding: var(--space-8) var(--page-padding) var(--space-16);
 }
 
+/* 宽版内容区：与 header 内容区（container--wide）同宽，用于文章阅读页。
+   独立底色 + 四周边框 + 圆角，与页面两侧星空背景形成「画框」效果 */
+.main--wide {
+  max-width: var(--wide-width);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin: var(--space-6) auto;
+}
+
+@media (min-width: 768px) {
+  .main--wide {
+    border-color: var(--color-border-strong);
+  }
+}
+
+/* 文章页星空背景：固定铺满视口，置于内容层之下 */
+.post-starfield {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
 main > * + * { margin-top: var(--space-8); }
 
 @media (min-width: 768px) {
@@ -1085,6 +1111,7 @@ a.tag:hover {
 
 .post-meta__item time {
   display: inline;
+  margin: 0; /* 重置 .post time 的 margin-bottom，保证 meta 行同一水平线 */
   white-space: nowrap;
 }
 
@@ -1498,11 +1525,12 @@ a.tag:hover {
    29. Motion — View Transitions
    ========================================================================== */
 
-@view-transition {
-  navigation: auto;
-}
+/* 注意：不要启用 @view-transition { navigation: auto }（跨文档过渡）。
+   在该特性被禁用的浏览器里，每次切换页面都会抛出
+   "Uncaught (in promise) InvalidStateError: ViewTransition opt-in disabled"。
+   下方伪元素样式仅供主题切换的同文档过渡（theme.js 手动触发）使用。 */
 
-/* 默认：整个页面淡入淡出 + 轻微上移 */
+/* 主题切换等同文档过渡：整个页面淡入淡出 */
 ::view-transition-old(root) {
   animation: vt-fade-out var(--duration-base) var(--ease-emphasized);
 }
@@ -1760,6 +1788,10 @@ html.theme-transition::view-transition-new(root) {
   justify-content: center;
   overflow: hidden;
   background: var(--color-bg);
+  /* 自绘光标作用于整个 Hero（含按钮/社交图标周边空白），
+     子元素继承；链接自身有 pointer 手势不受影响。
+     （系统 crosshair 在部分 Windows 指针方案下是白色，浅色页面上会隐形） */
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='5.5' fill='%23111827' stroke='white' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='white'/%3E%3C/svg%3E") 12 12, crosshair;
 }
 
 .hero-fullscreen__canvas {
@@ -1768,7 +1800,6 @@ html.theme-transition::view-transition-new(root) {
   width: 100%;
   height: 100%;
   display: block;
-  cursor: crosshair;
   transition: opacity 200ms var(--ease-out);
 }
 
@@ -1812,24 +1843,23 @@ html.theme-transition::view-transition-new(root) {
   stroke: none;
 }
 
-.js .hero-title-stroke__text {
-  fill: transparent;
+/* 单线手写笔迹：每个字母是一条连续 path，逐字描边书写 */
+.hero-title-stroke__path {
+  fill: none;
   stroke: url(#title-grad);
-  stroke-width: 2;
+  stroke-width: 30;          /* 原始字体单位，随字形 scale 缩放 */
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 1600;
-  stroke-dashoffset: 1600;
-  animation: title-draw 1.1s var(--ease-in-out) forwards,
-             title-fill 700ms var(--ease-out) forwards;
+}
+
+.js .hero-title-stroke__path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: title-draw 400ms linear forwards;
 }
 
 @keyframes title-draw {
   to { stroke-dashoffset: 0; }
-}
-
-@keyframes title-fill {
-  to { fill: color-mix(in srgb, var(--color-fg) 92%, transparent); }
 }
 
 /* 副标题 */
@@ -1902,12 +1932,11 @@ html.theme-transition::view-transition-new(root) {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 描边标题对减少动画偏好降级：直接显示完整填充文字 */
+/* 描边标题对减少动画偏好降级：直接显示完整笔迹 */
 @media (prefers-reduced-motion: reduce) {
-  .js .hero-title-stroke__text {
+  .js .hero-title-stroke__path {
     animation: none;
     stroke-dashoffset: 0;
-    fill: var(--color-fg);
   }
 }
 
@@ -2093,11 +2122,7 @@ html.theme-transition::view-transition-new(root) {
 
 .home-latest__all:hover { color: var(--color-accent); }
 
-/* 吃豆人 canvas 光标 */
-.hero-fullscreen__canvas[data-hero-pacman] {
-  cursor: none;
-}
-
+/* 吃豆人 canvas：保留基础样式的 crosshair 光标，保证用户始终能看到鼠标位置 */
 @media (hover: none) and (pointer: coarse) {
   .hero-fullscreen__canvas[data-hero-pacman] {
     cursor: auto;

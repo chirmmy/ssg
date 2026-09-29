@@ -2,7 +2,7 @@
 title: Webhook实现Github自动推送到Linux自动部署
 description: "Usage of Github Wehook"
 pubDate: 2025-07-23
-Updated: 2025-07-23
+updated: 2025-07-23
 tags: [自动化工具, Github]
 draft: false
 ---

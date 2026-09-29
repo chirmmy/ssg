@@ -1,8 +1,10 @@
 ---
 title: Github Actions笔记
-date: 2025-08-08T23:00:00+08:00
-lastmod: 2025-08-08T23:00:00+08:00
-categories: [笔记,Github]
+description: 介绍Gihub Actions基本使用方法
+pubDate: 2025-08-08
+updated: 2025-08-08
+tags: [笔记, Github]
+draft: false
 cover: https://qiniu.anburger.site/cover/Note.webp
 ---
 

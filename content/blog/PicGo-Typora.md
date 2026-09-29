@@ -1,9 +1,11 @@
 ---
 title: PicGo实现Typora插入图片上传服务
-date: 2025-07-22T12:00:00+08:00
-lastmod: 2025-07-22T12:00:00+08:00
+description: 一种PicGo自定义工具，实现图片插入后上传对象存储
+pubDate: 2025-07-22T12:00:00+08:00
+updated: 2025-07-22T12:00:00+08:00
+tags: [PicGo, Typora, 自动化工具]
+draft: false
 cover: https://qiniu.anburger.site/cover/Tech.webp
-categories: [自动化工具]
 ---
 
 

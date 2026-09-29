@@ -1,9 +1,10 @@
 ---
 title: 摘录
-date: 2025-07-25T12:00:00+08:00
-lastmod: 2025-07-25T12:00:00+08:00
-categories: [笔记,摘录]
-tags: [文学,小说,电影]
+description: 收集喜欢的句子
+pubDate: 2025-07-25
+updated: 2025-07-25
+tags: [笔记, 摘录, 文学, 小说, 电影]
+draft: false
 cover: https://qiniu.anburger.site/cover/Note.webp
 ---
 

@@ -1,8 +1,10 @@
 ---
 title: 什么是云函数
-date: 2025-08-01T16:55:00+08:00
-lastmod: 2025-08-01T16:55:00+08:00
-cover: https://qiniu.anburger.site/cover/Blog.webp
+description: 介绍云函数的概念和基本用法
+pubDate: 2025-08-01T16:55:00+08:00
+updated: 2025-08-01T16:55:00+08:00
+tags: [云函数]
+draft: false
 ---
 
 ## 什么是云函数？

@@ -2,7 +2,7 @@
 title: Typora自定义图片上传服务
 description: "Custome image uploader"
 pubDate: 2025-08-08
-Updated: 2025-08-08
+updated: 2025-08-08
 tags: [Typora, python, 图床]
 draft: false
 ---

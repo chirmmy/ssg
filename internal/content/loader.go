@@ -139,7 +139,9 @@ func (l *Loader) parse(_ context.Context, path string, kind Kind) (*Content, err
 }
 
 func splitFrontmatter(raw []byte) (frontmatter, body []byte, err error) {
-	rawstr := string(raw)
+	// 归一化 Windows CRLF 换行：否则 "---\r\n" 无法匹配 "---\n"，
+	// 整个 front matter 会被当成正文渲染
+	rawstr := strings.ReplaceAll(string(raw), "\r\n", "\n")
 	if !strings.HasPrefix(rawstr, "---\n") {
 		return nil, raw, nil
 	}

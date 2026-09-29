@@ -1,7 +1,10 @@
 ---
 title: Docker常用容器部署
-date: 2025-07-20T12:00:00+08:00
-lastmod: 2025-07-20T12:00:00+08:00
+description: 部署指令记录
+pubDate: 2025-07-20T12:00:00+08:00
+updated: 2025-07-20T12:00:00+08:00
+tags: [记录, docker]
+draft: false
 cover: https://qiniu.anburger.site/cover/Blog.webp
 ---
 ------

@@ -35,8 +35,9 @@ func BuildRoutes(s *site.Site) []Route {
 			Pattern:  "/blog/" + p.Slug + "/",
 			Template: "post",
 			Data: map[string]interface{}{
-				"Site": s,
-				"Post": p,
+				"Site":  s,
+				"Post":  p,
+				"Title": p.Title, // 供 head.html 的 <title> 使用
 			},
 		})
 	}
@@ -61,8 +62,9 @@ func BuildRoutes(s *site.Site) []Route {
 			Pattern:  "/" + slug + "/",
 			Template: "page",
 			Data: map[string]interface{}{
-				"Site": s,
-				"Page": page,
+				"Site":  s,
+				"Page":  page,
+				"Title": page.Title, // 供 head.html 的 <title> 使用
 			},
 		})
 	}

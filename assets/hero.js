@@ -14,9 +14,15 @@
 
   /* ---------- 可调参数 ---------- */
 
-  var GAP = 14;                 // 豆子网格间距
-  var DOT_R_BG = 1.1;           // 背景豆半径
-  var DOT_A_BG = 0.14;          // 背景豆透明度
+  var STAR_DENSITY = 30000;     // 平均每多少 px² 一颗星星
+  var STAR_COUNT_MIN = 14;      // 星星数量下限
+  var STAR_COUNT_MAX = 55;      // 星星数量上限
+  var STAR_R_MIN = 1.8;         // 星星最小半径
+  var STAR_R_MAX = 4.6;         // 星星最大半径
+  var STAR_BIG_RATIO = 0.22;    // 大星星（带光晕）比例
+  var STAR_ACCENT_RATIO = 0.35; // accent 色星星比例
+  var STAR_TWINKLE_MIN = 0.0012; // 闪烁最快频率系数
+  var STAR_TWINKLE_MAX = 0.0032; // 闪烁最慢频率系数
 
   var PACMAN_RADIUS = 12;       // 吃豆人半径
   var PACMAN_SPEED = 210;       // px/秒
@@ -24,9 +30,9 @@
   var PACMAN_TURN_RATE = 6;     // 转向速度（弧度/秒）
   var PACMAN_MOUTH_SPEED = 14;  // 嘴张合频率
 
-  var RESPAWN_MIN = 1800;       // 豆子重生最短时间（ms）
-  var RESPAWN_MAX = 3200;       // 豆子重生最长时间（ms）
-  var RESPAWN_FADE = 320;       // 重生淡入时长（ms）
+  var RESPAWN_MIN = 2600;       // 星星重生最短时间（ms）
+  var RESPAWN_MAX = 5200;       // 星星重生最长时间（ms）
+  var RESPAWN_FADE = 480;       // 重生淡入时长（ms）
 
   var MOUSE_IDLE_MS = 2200;     // 鼠标停止多久后吃豆人开始漫游
   var WANDER_MIN_MS = 1800;     // 漫游目标最短停留
@@ -38,11 +44,11 @@
   var height = 0;
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-  var dots = [];        // { tx, ty, r, alpha, kind, phase, color, alive, respawnAt, spawnAt }
+  var stars = [];       // { tx, ty, r, rot, rotSpeed, phase, speed, color, big, alive, respawnAt, spawnAt }
   var colors = { fg: '#111111', accent: '#2563eb', bg: '#ffffff' };
   var colorsRgb = { fg: [17, 17, 17], accent: [37, 99, 235], bg: [255, 255, 255] };
 
-  // 吃豆粒子（吃掉豆子时的涟漪）
+  // 吃星星时的闪光粒子
   var particles = [];
   var PARTICLE_LIFE = 450;
   var MAX_PARTICLES = 60;
@@ -86,16 +92,15 @@
     colorsRgb.bg = hexToRgb(colors.bg) || [255, 255, 255];
   }
 
-  /* ---------- 豆子配色 ---------- */
+  /* ---------- 星星配色 ---------- */
 
-  function applyDotColors() {
-    for (var i = 0; i < dots.length; i++) {
-      var d = dots[i];
-      d.color = d.kind === 'pellet' ? colors.accent : colors.fg;
+  function applyStarColors() {
+    for (var i = 0; i < stars.length; i++) {
+      stars[i].color = stars[i].accent ? colors.accent : colors.fg;
     }
   }
 
-  /* ---------- 构建豆子网格 ---------- */
+  /* ---------- 构建星空 ---------- */
 
   function build() {
     var rect = canvas.getBoundingClientRect();
@@ -107,29 +112,34 @@
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    dots = [];
+    stars = [];
 
-    for (var y = GAP / 2; y < height; y += GAP) {
-      for (var x = GAP / 2; x < width; x += GAP) {
-        // 少量背景豆升级为「能量豆」：更大、带 accent 色、呼吸闪烁
-        var isPellet = Math.random() < 0.03;
+    var count = Math.round((width * height) / STAR_DENSITY);
+    count = Math.max(STAR_COUNT_MIN, Math.min(STAR_COUNT_MAX, count));
 
-        dots.push({
-          tx: x,
-          ty: y,
-          r: isPellet ? 2.6 : DOT_R_BG,
-          alpha: isPellet ? 0.9 : DOT_A_BG,
-          kind: isPellet ? 'pellet' : 'bg',
-          phase: Math.random() * Math.PI * 2,
-          color: null,
-          alive: true,
-          respawnAt: 0,
-          spawnAt: 0,
-        });
-      }
+    var margin = 24;
+    for (var i = 0; i < count; i++) {
+      var big = Math.random() < STAR_BIG_RATIO;
+
+      stars.push({
+        tx: margin + Math.random() * Math.max(1, width - margin * 2),
+        ty: margin + Math.random() * Math.max(1, height - margin * 2),
+        r: big
+          ? STAR_R_MAX * (0.85 + Math.random() * 0.3)
+          : STAR_R_MIN + Math.random() * (STAR_R_MAX - STAR_R_MIN) * 0.7,
+        rot: Math.random() * Math.PI,
+        rotSpeed: (Math.random() - 0.5) * 0.0006,  // 大部分近乎静止，少数缓慢自转
+        phase: Math.random() * Math.PI * 2,
+        speed: STAR_TWINKLE_MIN + Math.random() * (STAR_TWINKLE_MAX - STAR_TWINKLE_MIN),
+        accent: Math.random() < STAR_ACCENT_RATIO,
+        big: big,
+        alive: true,
+        respawnAt: 0,
+        spawnAt: 0,
+      });
     }
 
-    applyDotColors();
+    applyStarColors();
 
     // 吃豆人初始位置：中心偏左上
     pacman.x = width * 0.5;
@@ -201,24 +211,24 @@
     pacman.mouthPhase += PACMAN_MOUTH_SPEED * dt / 1000;
   }
 
-  /* ---------- 吃豆 ---------- */
+  /* ---------- 吃星星 ---------- */
 
-  function eatDots(now) {
-    var eatR = PACMAN_RADIUS;
+  function eatStars(now) {
+    var eatR = PACMAN_RADIUS + 4;
     var eatR2 = eatR * eatR;
 
-    for (var i = 0; i < dots.length; i++) {
-      var d = dots[i];
-      if (!d.alive) continue;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      if (!s.alive) continue;
 
-      var dx = d.tx - pacman.x;
-      var dy = d.ty - pacman.y;
+      var dx = s.tx - pacman.x;
+      var dy = s.ty - pacman.y;
       var dist2 = dx * dx + dy * dy;
 
       if (dist2 < eatR2) {
-        d.alive = false;
-        d.respawnAt = now + RESPAWN_MIN + Math.random() * (RESPAWN_MAX - RESPAWN_MIN);
-        spawnParticles(d.tx, d.ty, d.kind === 'text' ? colors.accent : colors.fg);
+        s.alive = false;
+        s.respawnAt = now + RESPAWN_MIN + Math.random() * (RESPAWN_MAX - RESPAWN_MIN);
+        spawnParticles(s.tx, s.ty, s.color);
       }
     }
   }
@@ -252,42 +262,61 @@
   }
 
   function updateRespawns(now) {
-    for (var i = 0; i < dots.length; i++) {
-      var d = dots[i];
-      if (!d.alive && now >= d.respawnAt) {
-        d.alive = true;
-        d.spawnAt = now;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      if (!s.alive && now >= s.respawnAt) {
+        s.alive = true;
+        s.spawnAt = now;
       }
     }
   }
 
   /* ---------- 绘制 ---------- */
 
-  function drawDots(now) {
-    for (var i = 0; i < dots.length; i++) {
-      var d = dots[i];
-      if (!d.alive) continue;
+  // 四角星光路径（外尖内凹的菱形星芒）
+  function starPath(x, y, r, rot) {
+    var inner = r * 0.36;
+    ctx.beginPath();
+    for (var i = 0; i < 8; i++) {
+      var ang = rot + i * Math.PI / 4;
+      var rad = (i % 2 === 0) ? r : inner;
+      var px = x + Math.cos(ang) * rad;
+      var py = y + Math.sin(ang) * rad;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
 
-      var alpha = d.alpha;
-      var r = d.r;
-      var age = now - d.spawnAt;
-      if (d.spawnAt > 0 && age < RESPAWN_FADE) {
-        alpha *= age / RESPAWN_FADE;
-      }
+  function drawStars(now) {
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      if (!s.alive) continue;
 
-      // 背景豆轻微闪烁，能量豆呼吸式脉动
-      if (d.kind === 'bg') {
-        alpha *= 0.8 + 0.2 * Math.sin(now * 0.0012 + d.phase);
-      } else if (d.kind === 'pellet') {
-        alpha *= 0.75 + 0.25 * Math.sin(now * 0.003 + d.phase);
-        r = d.r * (0.9 + 0.15 * Math.sin(now * 0.003 + d.phase));
-      }
+      var age = now - s.spawnAt;
+      var fadeIn = (s.spawnAt > 0 && age < RESPAWN_FADE) ? age / RESPAWN_FADE : 1;
 
+      // 闪烁曲线：pow 让星星多数时间偏暗、偶尔骤亮，更像真实星光
+      var tw = Math.sin(now * s.speed + s.phase);
+      var twinkle = 0.3 + 0.7 * Math.pow((tw + 1) / 2, 2.2);
+
+      var alpha = fadeIn * twinkle;
+      var r = s.r * (0.82 + 0.18 * twinkle);
+      var rot = s.rot + now * s.rotSpeed;
+
+      ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = d.color || colors.fg;
-      ctx.beginPath();
-      ctx.arc(d.tx, d.ty, r, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+
+      // 大星星带柔光光晕
+      if (s.big && alpha > 0.45) {
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 10 * alpha;
+      }
+
+      starPath(s.tx, s.ty, r, rot);
       ctx.fill();
+      ctx.restore();
     }
     ctx.globalAlpha = 1;
   }
@@ -324,7 +353,7 @@
 
   function draw(now) {
     ctx.clearRect(0, 0, width, height);
-    drawDots(now);
+    drawStars(now);
     drawParticles();
     drawPacman();
   }
@@ -338,7 +367,7 @@
     lastTime = now;
 
     updatePacman(dt, now);
-    eatDots(now);
+    eatStars(now);
     updateRespawns(now);
     updateParticles(dt);
     draw(now);
@@ -363,12 +392,11 @@
 
   function drawStatic() {
     ctx.clearRect(0, 0, width, height);
-    for (var i = 0; i < dots.length; i++) {
-      var d = dots[i];
-      ctx.globalAlpha = d.alpha;
-      ctx.fillStyle = d.color || colors.fg;
-      ctx.beginPath();
-      ctx.arc(d.tx, d.ty, d.r, 0, Math.PI * 2);
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = s.color;
+      starPath(s.tx, s.ty, s.r, s.rot);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
@@ -443,7 +471,7 @@
 
   function onThemeChange() {
     readColors();
-    applyDotColors();
+    applyStarColors();
     if (reduceMotion) drawStatic();
   }
 
@@ -464,55 +492,67 @@
     });
   }
 
-  /* ---------- 描边标题（逐字拆分） ---------- */
+  /* ---------- 描边标题（EMS Allure 单线手写笔迹，逐字书写） ---------- */
 
-  var LETTER_STAGGER_MS = 90;   // 相邻字母描边起始间隔
-  var LETTER_DRAW_MS = 1100;    // 单个字母描边时长（与 CSS 保持一致）
-  var TITLE_FONT_SIZE = 110;    // 与 CSS .hero-title-stroke__text 保持一致
+  var LETTER_STAGGER_MS = 150;   // 相邻字母起笔间隔
+  var TITLE_TARGET_WIDTH = 1000; // 标题在 viewBox 中的目标宽度
+  var TITLE_MAX_SCALE = 0.185;   // 缩放上限（防止过短标题被放得过大）
+  var SCRIPT_BASELINE = 170;     // viewBox 中的基线位置
 
   function setupTitleStroke() {
     var svg = document.querySelector('[data-title-stroke]');
-    if (!svg) return;
+    var font = window.HERSHEY_SCRIPT;
+    if (!svg || !font) return;
     var textEl = svg.querySelector('[data-stroke-text]');
     if (!textEl) return;
 
     var title = (textEl.textContent || '').trim();
     if (!title) return;
 
-    // 字体加载完成后用 canvas 精确测量每个字符宽度
-    var cs = getComputedStyle(textEl);
-    var measure = document.createElement('canvas').getContext('2d');
-    measure.font = cs.fontWeight + ' ' + TITLE_FONT_SIZE + 'px ' + cs.fontFamily;
+    // 总宽（原始单位）→ 求缩放比
+    var total = 0;
+    for (var i = 0; i < title.length; i++) {
+      var gc = font.glyphs[title[i]];
+      total += (gc && gc.d) ? gc.w : font.space;
+    }
+    var S = Math.min(TITLE_TARGET_WIDTH / total, TITLE_MAX_SCALE);
 
-    var pad = 40;
-    var baseY = 170;
-    var x = pad;
+    var x = 40;
+    var idx = 0;
     var frag = document.createDocumentFragment();
-    var chars = Array.from(title);
+    var svgNS = 'http://www.w3.org/2000/svg';
 
-    for (var i = 0; i < chars.length; i++) {
-      var ch = chars[i];
-      var w = measure.measureText(ch).width;
+    for (var j = 0; j < title.length; j++) {
+      var ch = title[j];
+      var g = font.glyphs[ch];
+      if (!g || !g.d) { x += font.space * S; continue; }
 
-      if (ch !== ' ') {
-        var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        t.setAttribute('x', x.toFixed(1));
-        t.setAttribute('y', baseY);
-        t.setAttribute('class', 'hero-title-stroke__text');
-        // 逐字描边：延迟 = 起始延迟 + 序号 × 间隔；总时长兜底 +100ms
-        t.style.animationDelay =
-          (300 + i * LETTER_STAGGER_MS) + 'ms, ' +
-          (300 + i * LETTER_STAGGER_MS + LETTER_DRAW_MS + 100) + 'ms';
-        t.textContent = ch;
-        frag.appendChild(t);
-      }
+      var p = document.createElementNS(svgNS, 'path');
+      p.setAttribute('d', g.d);
+      // 字体坐标 y 向上，翻转 y 使基线落在 SCRIPT_BASELINE
+      p.setAttribute('transform',
+        'translate(' + x.toFixed(2) + ',' + SCRIPT_BASELINE + ') scale(' + S + ',-' + S + ')');
+      p.setAttribute('class', 'hero-title-stroke__path');
+      p.setAttribute('pathLength', '1');
+      p.style.animationDelay = (300 + idx * LETTER_STAGGER_MS) + 'ms';
+      frag.appendChild(p);
 
-      x += w;
+      x += g.w * S;
+      idx++;
     }
 
-    // 按实际文本宽度收紧 viewBox，保证任何标题都能完整显示
-    svg.setAttribute('viewBox', '0 0 ' + Math.ceil(x + pad) + ' 220');
-    textEl.remove();
+    // 按内容宽度收紧 viewBox
+    var width = Math.ceil(x + 40);
+    svg.setAttribute('viewBox', '0 0 ' + width + ' 220');
+
+    // 渐变随内容宽度横向铺满整句
+    var grad = svg.querySelector('#title-grad');
+    if (grad) {
+      grad.setAttribute('gradientUnits', 'userSpaceOnUse');
+      grad.setAttribute('x2', width);
+    }
+
+    textEl.style.display = 'none';
     svg.appendChild(frag);
   }
 

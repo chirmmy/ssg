@@ -2,10 +2,11 @@
 <html lang="{{.Site.Config.Site.Language}}">
 <head>{{template "head" .}}</head>
 <body>
+  <canvas class="post-starfield" data-starfield aria-hidden="true"></canvas>
   <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
   <a href="#main" class="skip-link">跳到主内容</a>
   {{template "header" .}}
-  <main id="main" tabindex="-1">
+  <main id="main" class="main--wide" tabindex="-1">
     <article class="post" data-reading-source>
       <h1 class="enter">{{.Post.Title}}</h1>
       <div class="enter" data-enter-delay="1">{{template "post-meta" .Post}}</div>
@@ -18,6 +19,7 @@
     </article>
   </main>
   {{template "footer" .}}
+  <script src="{{asset "starfield.js"}}" defer></script>
   <script src="{{asset "code.js"}}" defer></script>
   <script src="{{asset "toc.js"}}" defer></script>
   <script src="{{asset "reading-progress.js"}}" defer></script>

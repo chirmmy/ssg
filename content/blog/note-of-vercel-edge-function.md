@@ -1,8 +1,10 @@
 ---
 title: Vercel Serverless笔记
-date: 2025-08-01T21:00:00+08:00
-lastmod: 2025-07-21T21:00:00+08:00
-categories: [笔记]
+description: 介绍Vercel Serverless的概念和基本用法
+pubDate: 2025-08-01T21:00:00+08:00
+updated: 2025-07-21T21:00:00+08:00
+tags: [笔记]
+draft: false
 cover: https://qiniu.anburger.site/cover/Note.webp
 ---
 ## 1 环境准备

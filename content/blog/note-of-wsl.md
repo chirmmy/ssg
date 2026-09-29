@@ -1,8 +1,10 @@
 ---
 title: WSL笔记
-date: 2025-08-03T21:00:00+08:00
-lastmod: 2025-08-03T21:00:00+08:00
-categories: [笔记,WSL,Windows]
+description: 介绍WSL的概念和基本用法
+pubDate: 2025-08-03T21:00:00+08:00
+updated: 2025-08-03T21:00:00+08:00
+tags: [笔记, WSL, Windows]
+draft: false
 cover: https://qiniu.anburger.site/cover/Note.webp
 ---
 ## 1 安装
