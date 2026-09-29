@@ -1,5 +1,5 @@
 {{define "home"}}<!DOCTYPE html>
-<html lang="{{.Site.Config.Site.Language}}">
+<html lang="{{.Site.Config.Site.Language}}" class="snap-home">
 <head>{{template "head" .}}</head>
 <body>
   <a href="#main" class="skip-link">跳到主内容</a>
@@ -41,46 +41,52 @@
       </div>
 
       <div class="hero-fullscreen__scroll-hint" aria-hidden="true">
-        <span>向下滚动</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 5v14M5 12l7 7 7-7"/>
+        <svg class="hero-fullscreen__scroll-mouse" viewBox="0 0 26 40" fill="none">
+          <!-- 鼠标轮廓（胶囊形） -->
+          <rect x="1.25" y="1.25" width="23.5" height="37.5" rx="11.75"
+                stroke="currentColor" stroke-width="1.6"/>
+          <!-- 滚轮光点：循环下滑 -->
+          <line class="hero-fullscreen__scroll-wheel" x1="13" y1="9" x2="13" y2="15"
+                stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
         </svg>
+        <span>Scroll</span>
       </div>
     </section>
 
-    <section class="home-about">
-      <div class="home-about__card" data-reveal>
-        <div class="home-about__avatar" aria-hidden="true">C</div>
-        <div class="home-about__body">
-          <h2>你好，我是 {{.Site.Config.Site.Author}}</h2>
-          <p>一名喜欢折腾的开发者。这个网站由我从零自研的静态站点生成器驱动——用 Go 编写，从 Markdown 渲染、模板引擎到并发构建都是亲手实现的。在这里记录技术与思考。</p>
-          <ul class="home-about__tags">
-            <li>Go</li>
-            <li>后端开发</li>
-            <li>静态站点</li>
-            <li>开源</li>
-          </ul>
-        </div>
-        <a href="/about/" class="home-about__more">了解更多 →</a>
-      </div>
-    </section>
-
-    {{if .Posts}}
-    <section class="home-latest">
-      <div class="home-latest__head">
-        <h2>最新文章</h2>
-        <a href="/blog/" class="home-latest__all">全部文章 →</a>
-      </div>
-      <div class="post-list post-list--cards">
-        {{range $i, $p := .Posts}}
-          <div data-reveal {{if lt $i 4}}data-reveal-delay="{{$i}}"{{end}}>
-            {{template "post-card" $p}}
+    <div class="home-content">
+      <section class="home-about">
+        <div class="home-about__card" data-reveal>
+          <div class="home-about__avatar" aria-hidden="true">C</div>
+          <div class="home-about__body">
+            <h2>你好，我是 {{.Site.Config.Site.Author}}</h2>
+            <p>一名喜欢折腾的开发者。这个网站由我从零自研的静态站点生成器驱动——用 Go 编写，从 Markdown 渲染、模板引擎到并发构建都是亲手实现的。在这里记录技术与思考。</p>
+            <ul class="home-about__tags">
+              <li>Go</li>
+              <li>后端开发</li>
+              <li>静态站点</li>
+              <li>开源</li>
+            </ul>
           </div>
-        {{end}}
-      </div>
-    </section>
-    {{end}}
+          <a href="/about/" class="home-about__more">了解更多 →</a>
+        </div>
+      </section>
+
+      {{if .Posts}}
+      <section class="home-latest">
+        <div class="home-latest__head">
+          <h2>最新文章</h2>
+          <a href="/blog/" class="home-latest__all">全部文章 →</a>
+        </div>
+        <div class="post-list post-list--cards">
+          {{range $i, $p := .Posts}}
+            <div data-reveal {{if lt $i 4}}data-reveal-delay="{{$i}}"{{end}}>
+              {{template "post-card" $p}}
+            </div>
+          {{end}}
+        </div>
+      </section>
+      {{end}}
+    </div>
   </main>
   {{template "footer" .}}
   <script src="{{asset "script-font-data.js"}}" defer></script>

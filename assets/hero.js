@@ -556,6 +556,23 @@
     svg.appendChild(frag);
   }
 
+  /* ---------- 开屏时隐藏 header ---------- */
+
+  // Hero 占视口一半以上时隐藏 header，进入内容区后滑出显示。
+  // 用 IntersectionObserver 而非 scroll 阈值：对 snap 吸附动画、键盘翻页同样有效
+  function setupHeaderAutohide() {
+    var header = document.querySelector('.site-header');
+    var heroSection = canvas.closest('.hero-fullscreen');
+    if (!header || !heroSection || !('IntersectionObserver' in window)) return;
+
+    var io = new IntersectionObserver(function (entries) {
+      var visible = entries[0].intersectionRatio >= 0.5;
+      header.classList.toggle('site-header--hidden', visible);
+    }, { threshold: [0, 0.25, 0.5, 0.75, 1] });
+
+    io.observe(heroSection);
+  }
+
   /* ---------- 初始化 ---------- */
 
   function init() {
@@ -568,6 +585,7 @@
     ready.then(function () {
       setupTitleStroke();
       build();
+      setupHeaderAutohide();
 
       if (reduceMotion) {
         drawStatic();

@@ -250,6 +250,24 @@ main > * + * { margin-top: var(--space-8); }
   backdrop-filter: saturate(180%) blur(16px);
   -webkit-backdrop-filter: saturate(180%) blur(16px);
   border-bottom: 1px solid var(--color-border);
+  transition: transform var(--duration-base) var(--ease-out),
+              visibility 0s;
+}
+
+/* 首页开屏时隐藏（由 hero.js 的 IntersectionObserver 切换） */
+.site-header--hidden {
+  transform: translateY(-100%);
+  visibility: hidden;
+  /* 滑出动画结束后再从无障碍树/焦点中移除 */
+  transition: transform var(--duration-base) var(--ease-out),
+              visibility 0s var(--duration-base);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header,
+  .site-header--hidden {
+    transition: none;
+  }
 }
 
 .site-header__inner {
@@ -1779,6 +1797,41 @@ html.theme-transition::view-transition-new(root) {
 
 .home-main > * + * { margin-top: 0; }
 
+/* 首页滚动吸附：要么完整停在开屏，要么完整进入内容区，不允许半截停留。
+   内容区高于视口时其内部仍可自由滚动（超出 snapport 的区域不强制吸附） */
+html.snap-home {
+  scroll-snap-type: y mandatory;
+}
+
+html.snap-home .hero-fullscreen {
+  scroll-snap-align: start;
+  scroll-snap-stop: always; /* 快速甩动滚轮也必须干净地停在前两个屏，不会一滑到底 */
+  /* sticky header 在文档流中占了 header 高度，Hero 顶部实际在 y=header 处；
+     用同样的 scroll-margin 抵消，让 scrollY=0 成为合法吸附点，
+     否则 mandatory 模式在载入时会强制下滚一个 header 高度 */
+  scroll-margin-top: var(--header-height);
+}
+
+html.snap-home .home-content {
+  scroll-snap-align: start;
+  scroll-margin-top: var(--header-height); /* 吸附时纸边停在毛玻璃 header 下方 */
+}
+
+/* 首页内容区：一张「掀起纸」盖在 Hero 游乐场之上，
+   圆角顶边 + 上投影 + 负边距上压，形成清晰的开屏/内容隔离 */
+.home-content {
+  position: relative;
+  z-index: 3;
+  margin-top: clamp(-44px, -4vw, -20px);
+  border-top: 1px solid var(--color-border);
+  border-radius: 28px 28px 0 0;
+  background: linear-gradient(180deg,
+                color-mix(in srgb, var(--color-accent) 4%, var(--color-bg)),
+                var(--color-bg) 180px);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.1);
+  padding-bottom: var(--space-8);
+}
+
 .hero-fullscreen {
   position: relative;
   min-height: 100vh;
@@ -1951,36 +2004,45 @@ html.theme-transition::view-transition-new(root) {
 
 .hero-fullscreen__scroll-hint {
   position: absolute;
-  bottom: var(--space-8);
+  /* 内容纸边缘会盖住 Hero 底部 ~44px，提示需要停在纸边上沿 */
+  bottom: calc(var(--space-8) + 52px);
   left: 50%;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   color: var(--color-fg-subtle);
   font-size: var(--text-xs);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   pointer-events: none;
-  animation: scroll-hint 2.4s var(--ease-in-out) infinite;
 }
 
-.hero-fullscreen__scroll-hint svg {
+.hero-fullscreen__scroll-mouse {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 37px;
+  opacity: 0.85;
 }
 
-@keyframes scroll-hint {
-  0%, 100% { transform: translate(-50%, 0); opacity: 0.5; }
-  50%      { transform: translate(-50%, 6px); opacity: 1; }
+/* 滚轮光点：在鼠标轮廓内循环下滑并渐隐 */
+.hero-fullscreen__scroll-wheel {
+  animation: scroll-wheel 2.2s var(--ease-in-out) infinite;
+}
+
+@keyframes scroll-wheel {
+  0%   { transform: translateY(0);    opacity: 0; }
+  25%  { transform: translateY(3px);  opacity: 1; }
+  70%  { transform: translateY(12px); opacity: 1; }
+  100% { transform: translateY(15px); opacity: 0; }
 }
 
 /* 内容区样式见第 37 节 */
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-fullscreen__scroll-hint { animation: none; }
+  .hero-fullscreen__scroll-hint,
+  .hero-fullscreen__scroll-wheel { animation: none; }
 
   .js .hero-fullscreen__subtitle,
   .js .hero-fullscreen__actions,
