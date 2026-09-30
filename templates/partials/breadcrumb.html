@@ -1,0 +1,36 @@
+{{define "breadcrumb"}}{{/* 用法：{{template "breadcrumb" (dict "Section" "博客" "SectionURL" "/blog/" "Title" .Post.Title "BackURL" "/blog/")}} */}}
+<nav class="breadcrumb" aria-label="路径导航">
+  <a class="breadcrumb__back" href="{{with .BackURL}}{{.}}{{else}}/{{end}}" data-back>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    <span>返回</span>
+  </a>
+  <ol class="breadcrumb__list">
+    <li class="breadcrumb__item">
+      <a class="breadcrumb__link" href="/">首页</a>
+    </li>
+    {{with .Section}}
+    <li class="breadcrumb__item" aria-hidden="true">
+      <svg class="breadcrumb__sep" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 6l6 6-6 6"/>
+      </svg>
+    </li>
+    <li class="breadcrumb__item">
+      <a class="breadcrumb__link" href="{{with $.SectionURL}}{{.}}{{else}}/{{end}}">{{.}}</a>
+    </li>
+    {{end}}
+    {{with .Title}}
+    <li class="breadcrumb__item" aria-hidden="true">
+      <svg class="breadcrumb__sep" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 6l6 6-6 6"/>
+      </svg>
+    </li>
+    <li class="breadcrumb__item breadcrumb__item--current" aria-current="page">{{.}}</li>
+    {{end}}
+  </ol>
+</nav>
+{{end}}

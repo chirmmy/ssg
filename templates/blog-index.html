@@ -4,10 +4,11 @@
 <body>
   <a href="#main" class="skip-link">跳到主内容</a>
   {{template "header" .}}
-  <main id="main" tabindex="-1">
+  <main id="main" class="main--wide" tabindex="-1">
+    {{template "breadcrumb" (dict "Title" "博客")}}
     <h1 class="enter">博客</h1>
     {{if .Posts}}
-      <div class="post-list">
+      <div class="post-list post-list--cards">
         {{range $i, $p := .Posts}}
           <div data-reveal {{if lt $i 4}}data-reveal-delay="{{$i}}"{{end}}>
             {{template "post-card" $p}}

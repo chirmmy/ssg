@@ -34,25 +34,22 @@
       btn.setAttribute('aria-label', '切换主题（当前：' + labels[pref] + '）');
     };
 
-    // 点击触发的主题切换：用圆形扩散
-    if (
-      originEvent &&
-      document.startViewTransition &&
-      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
-      // 以点击位置为中心
-      var x = originEvent.clientX;
-      var y = originEvent.clientY;
-      root.style.setProperty('--theme-x', x + 'px');
-      root.style.setProperty('--theme-y', y + 'px');
-      root.classList.add('theme-transition');
-
-      var transition = document.startViewTransition(doApply);
-      transition.finished.finally(function () {
-        root.classList.remove('theme-transition');
-        root.style.removeProperty('--theme-x');
-        root.style.removeProperty('--theme-y');
+    // 点击触发的主题切换：全局颜色属性并行动画（无 View Transitions 快照开销）
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (originEvent && !reduceMotion) {
+      // 先加过渡类，等浏览器提交一次带过渡的样式（双重 rAF）后再换主题，
+      // 避免加类/重排/换主题挤在同一帧导致首帧过长、动画起步卡顿。
+      root.classList.add('theme-anim');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          doApply();
+        });
       });
+
+      // 过渡结束后移除类，避免影响 hover 等常规过渡（时长与 CSS 中过渡时长一致并留余量）
+      window.setTimeout(function () {
+        root.classList.remove('theme-anim');
+      }, 380);
     } else {
       doApply();
     }

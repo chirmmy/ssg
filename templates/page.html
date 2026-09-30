@@ -4,7 +4,8 @@
 <body>
   <a href="#main" class="skip-link">跳到主内容</a>
   {{template "header" .}}
-  <main id="main" tabindex="-1">
+  <main id="main" class="main--wide" tabindex="-1">
+    {{template "breadcrumb" (dict "Title" .Page.Title)}}
     <article class="page">
       <h1 class="enter">{{.Page.Title}}</h1>
       <div class="content enter" data-enter-delay="1">

@@ -604,14 +604,17 @@
       document.addEventListener('visibilitychange', onVisibility);
       window.addEventListener('scroll', onScroll, { passive: true });
 
-      new MutationObserver(function (mutations) {
-        for (var i = 0; i < mutations.length; i++) {
-          if (mutations[i].attributeName === 'data-theme') {
-            onThemeChange();
-            return;
-          }
+      // 主题切换期间（html.theme-anim）暂停星空绘制，避免与全页颜色过渡
+      // 争抢主线程造成掉帧；过渡结束后读取最终颜色并恢复。
+      new MutationObserver(function () {
+        var animating = root.classList.contains('theme-anim');
+        if (animating) {
+          stop();
+          return;
         }
-      }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+        onThemeChange();
+        start();
+      }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'class'] });
     });
   }
 

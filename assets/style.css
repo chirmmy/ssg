@@ -198,10 +198,13 @@ main {
   padding: var(--space-8) var(--page-padding) var(--space-16);
 }
 
-/* 宽版内容区：与 header 内容区（container--wide）同宽，用于文章阅读页。
-   独立底色 + 四周边框 + 圆角，与页面两侧星空背景形成「画框」效果 */
+/* 宽版内容区：与 header 内容区（container--wide）同宽（博客列表 / 关于我 / 文章页通用） */
 .main--wide {
   max-width: var(--wide-width);
+}
+
+/* 画框修饰（仅文章阅读页）：独立底色 + 四周边框 + 圆角，与两侧星空形成「画框」效果 */
+.main--framed {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -209,7 +212,7 @@ main {
 }
 
 @media (min-width: 768px) {
-  .main--wide {
+  .main--framed {
     border-color: var(--color-border-strong);
   }
 }
@@ -964,7 +967,7 @@ html[data-theme-preference="dark"] .theme-toggle__icon[data-theme-icon="dark"] {
   color: inherit;
 }
 
-.post-card__meta {
+.post-card__top {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -982,10 +985,21 @@ html[data-theme-preference="dark"] .theme-toggle__icon[data-theme-icon="dark"] {
   font-variant-numeric: tabular-nums;
 }
 
+.post-card__dot {
+  color: var(--color-fg-subtle);
+  font-size: var(--text-xs);
+}
+
+.post-card__reading {
+  color: var(--color-fg-subtle);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
 .post-card h2 {
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-  margin: 0 0 var(--space-1);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  margin: 0 0 var(--space-2); /* 标题与摘要间距 8px */
   color: var(--color-fg);
   line-height: var(--leading-tight);
   transition: color var(--duration-fast) var(--ease-out);
@@ -993,19 +1007,56 @@ html[data-theme-preference="dark"] .theme-toggle__icon[data-theme-icon="dark"] {
 
 .post-card a:hover h2 { color: var(--color-accent); }
 
+/* 键盘聚焦：标题链接外清晰外轮廓 */
+.post-card a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
 .post-card p {
   color: var(--color-fg-muted);
   margin: 0;
   font-size: var(--text-sm);
+  line-height: 1.65;
+  /* 描述最多两行，超出省略，保证多卡高度节奏一致 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.post-card__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3); /* 摘要与标签间距 12px */
+}
+
+.post-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 标签是真实链接，需浮在整卡点击层（a::after）之上才能单独点中 */
+.post-card .tag {
+  position: relative;
+  z-index: 2;
+  font-size: var(--text-xs);
 }
 
 .post-card__more {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: var(--space-3);
   font-size: var(--text-sm);
   color: var(--color-accent);
+  white-space: nowrap;
   opacity: 0;
   transform: translateX(-4px);
   transition: opacity var(--duration-fast) var(--ease-out),
@@ -1024,17 +1075,39 @@ html[data-theme-preference="dark"] .theme-toggle__icon[data-theme-icon="dark"] {
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   background: var(--color-bg-elevated);
+  overflow: hidden;
   transition: border-color var(--duration-fast) var(--ease-out),
               transform var(--duration-fast) var(--ease-out),
               box-shadow var(--duration-base) var(--ease-out);
+}
+
+/* 悬停时左侧 3px 竖条，从中间向上下展开 */
+.post-list--cards .post-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 62%;
+  border-radius: 0 2px 2px 0;
+  background: var(--color-accent);
+  transform: translateY(-50%) scaleY(0);
+  transform-origin: center;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 .post-list--cards .post-card:last-child { border-bottom: 1px solid var(--color-border); }
 
 .post-list--cards .post-card:hover {
   border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
-  transform: translateY(-2px);
+  /* 背景变为主题色弱化版（暗色模式靠 token 自动适配） */
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--color-bg-elevated));
+  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
+}
+
+.post-list--cards .post-card:hover::before {
+  transform: translateY(-50%) scaleY(1);
 }
 
 @media (max-width: 640px) {
@@ -1142,7 +1215,99 @@ a.tag:hover {
 }
 
 /* ==========================================================================
-   24c. Components — Pagination
+   24c. Components — Breadcrumb
+   ========================================================================== */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  font-size: var(--text-sm);
+}
+
+.breadcrumb__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.breadcrumb__back:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background-color: var(--color-bg-subtle);
+}
+
+.breadcrumb__back svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.breadcrumb__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.breadcrumb__link {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.breadcrumb__link:hover {
+  color: var(--color-accent);
+}
+
+.breadcrumb__sep {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--color-fg-subtle);
+  opacity: 0.6;
+}
+
+.breadcrumb__item--current {
+  color: var(--color-fg-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 24rem;
+}
+
+@media (max-width: 640px) {
+  .breadcrumb {
+    gap: var(--space-2);
+  }
+
+  .breadcrumb__item--current {
+    max-width: 40vw;
+  }
+}
+
+/* ==========================================================================
+   24d. Components — Pagination
    ========================================================================== */
 
 .pagination {
@@ -1546,7 +1711,8 @@ a.tag:hover {
 /* 注意：不要启用 @view-transition { navigation: auto }（跨文档过渡）。
    在该特性被禁用的浏览器里，每次切换页面都会抛出
    "Uncaught (in promise) InvalidStateError: ViewTransition opt-in disabled"。
-   下方伪元素样式仅供主题切换的同文档过渡（theme.js 手动触发）使用。 */
+   主题切换已改用 33 节的全局颜色过渡（html.theme-anim），不再走 View Transitions；
+   以下规则保留，供将来手动触发同文档过渡时使用。 */
 
 /* 主题切换等同文档过渡：整个页面淡入淡出 */
 ::view-transition-old(root) {
@@ -1572,7 +1738,7 @@ a.tag:hover {
   }
 }
 
-/* 主题切换：圆形扩散（只在支持 View Transitions 的浏览器生效） */
+/* 同文档过渡（主题切换）统一时长 */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: var(--duration-slow);
@@ -1718,6 +1884,8 @@ a.tag:hover {
 }
 
 a.tag:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
   transform: translateY(-1px);
 }
 
@@ -1735,27 +1903,32 @@ a.tag:hover {
    33. Motion — Theme Transition
    ========================================================================== */
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  mix-blend-mode: normal;
+/* 主题切换：全局同时柔性变换。
+   由 theme.js 在切换瞬间临时挂上 html.theme-anim，让所有元素的颜色相关属性
+   并行做 CSS 过渡；结束后移除，不影响 hover 等常规过渡。
+   注意：不要用 View Transitions 整页快照淡入——快照生成/纹理上传开销大，
+   内容多的页面（如文章页 + 星空画布）会掉帧卡顿。
+   性能要点：不动画 box-shadow（重绘开销大、视觉上几乎无感知差异）；
+   时长取 300ms——过长会放大中途长帧带来的"两段式停顿"观感。 */
+html.theme-anim,
+html.theme-anim *,
+html.theme-anim *::before,
+html.theme-anim *::after {
+  transition:
+    background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    fill 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* 主题切换时，用 JS 设置 CSS 变量控制扩散中心 */
-html.theme-transition::view-transition-old(root),
-html.theme-transition::view-transition-new(root) {
-  animation-duration: 400ms;
-  animation-timing-function: var(--ease-emphasized);
-}
-
-html.theme-transition::view-transition-new(root) {
-  animation-name: theme-circle-in;
-  clip-path: circle(0% at var(--theme-x, 50%) var(--theme-y, 50%));
-}
-
-@keyframes theme-circle-in {
-  to {
-    clip-path: circle(150% at var(--theme-x, 50%) var(--theme-y, 50%));
-  }
+/* 主题过渡期间停用 header 毛玻璃，改为不透明底色：
+   过渡时下层内容每帧都在重绘，backdrop-filter 被迫逐帧重新模糊，
+   是切换瞬间闪烁与掉帧的主要来源；结束后自动恢复毛玻璃。 */
+html.theme-anim .site-header {
+  background: var(--color-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* ==========================================================================

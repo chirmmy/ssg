@@ -1,14 +1,29 @@
 {{define "post-card"}}
 <article class="post-card">
-  <div class="post-card__meta">
+  <div class="post-card__top">
     <time datetime="{{dateFormat .PubDate "2006-01-02"}}">
       {{dateFormat .PubDate "2006-01-02"}}
     </time>
+    {{if .ReadingTime}}
+      <span class="post-card__dot" aria-hidden="true">·</span>
+      <span class="post-card__reading">{{.ReadingTime}} 分钟</span>
+    {{end}}
   </div>
   <h2>
     <a href="/blog/{{.Slug}}/">{{.Title}}</a>
   </h2>
-  <p>{{.Description}}</p>
-  <span class="post-card__more" aria-hidden="true">阅读全文 →</span>
+  {{if .Description}}
+    <p>{{.Description}}</p>
+  {{end}}
+  <div class="post-card__bottom">
+    {{if .Tags}}
+      <ul class="post-card__tags">
+        {{range .Tags}}<li>{{template "tag" .}}</li>{{end}}
+      </ul>
+    {{else}}
+      <span></span>
+    {{end}}
+    <span class="post-card__more" aria-hidden="true">阅读全文 →</span>
+  </div>
 </article>
 {{end}}
