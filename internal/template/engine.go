@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/fs"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -105,6 +106,25 @@ func funcMap(opts Options) template.FuncMap {
 		},
 		"isDev": func() bool {
 			return opts.Dev
+		},
+		// num 给字数加千分位：4266 -> 4,266
+		"num": func(n int) string {
+			s := strconv.Itoa(n)
+			neg := strings.HasPrefix(s, "-")
+			if neg {
+				s = s[1:]
+			}
+			var b strings.Builder
+			for i, r := range s {
+				if i > 0 && (len(s)-i)%3 == 0 {
+					b.WriteByte(',')
+				}
+				b.WriteRune(r)
+			}
+			if neg {
+				return "-" + b.String()
+			}
+			return b.String()
 		},
 	}
 }

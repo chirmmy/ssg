@@ -1,29 +1,76 @@
 {{define "post"}}<!DOCTYPE html>
 <html lang="{{.Site.Config.Site.Language}}">
 <head>{{template "head" .}}</head>
-<body class="page-post">
-  <canvas class="post-starfield" data-starfield aria-hidden="true"></canvas>
-  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+<body>
   <a href="#main" class="skip-link">跳到主内容</a>
   {{template "header" .}}
-  <main id="main" class="main--wide main--framed" tabindex="-1">
-    {{template "breadcrumb" (dict "Section" "博客" "SectionURL" "/blog/" "Title" .Post.Title "BackURL" "/blog/")}}
-    <article class="post" data-reading-source>
-      <header class="post__header">
-        <h1 class="enter">{{.Post.Title}}</h1>
-        <div class="enter" data-enter-delay="1">{{template "post-meta" .Post}}</div>
-      </header>
+  <main id="main" class="main--flow" tabindex="-1">
+    <div class="fx" aria-hidden="true"></div>
 
-      <div class="toc" data-toc></div>
+    <div class="post-grid">
+      <article class="post sheet">
+        <a class="back" href="/blog/" data-back>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          <span>返回博客</span>
+        </a>
 
-      <div class="content" data-toc-source>
-        {{.Post.Body}}
-      </div>
-    </article>
+        <header class="post-head">
+          {{if .Post.Tags}}
+          <ul class="eyebrow">
+            {{range .Post.Tags}}
+              <li><a href="/blog/?tag={{urlquery .}}">{{.}}</a></li>
+            {{end}}
+          </ul>
+          {{end}}
+
+          <h1 class="post-title enter">{{.Post.Title}}</h1>
+
+          {{if .Post.Description}}
+            <p class="post-lead enter" data-enter-delay="1">{{.Post.Description}}</p>
+          {{end}}
+
+          <div class="enter" data-enter-delay="2">{{template "post-meta" .}}</div>
+        </header>
+
+        <details class="toc-inline" open>
+          <summary>本文目录 · <span data-toc-count>—</span></summary>
+          <nav class="toc toc--inline" data-toc-inline aria-label="文章目录"></nav>
+        </details>
+
+        <div class="content" data-toc-source data-reading-source>
+          {{.Post.Body}}
+        </div>
+
+        {{template "post-end" .}}
+        {{template "post-nav" .}}
+      </article>
+
+      <aside class="rail">
+        <div class="rail__inner">
+          <p class="rail__label">本文目录</p>
+          <nav class="toc toc--rail" data-toc-rail aria-label="文章目录"></nav>
+          <div class="rail__foot">
+            <div class="rail__meter">
+              <span>阅读进度</span>
+              <span class="rail__track"><i data-progress-bar></i></span>
+              <b data-progress-num>0%</b>
+            </div>
+            <button type="button" class="totop" data-totop>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 19V5M5 12l7-7 7 7"/>
+              </svg>
+              回到顶部
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
   </main>
   {{template "footer" .}}
-  <aside class="toc-rail" data-toc-rail aria-label="文章目录"></aside>
-  <script src="{{asset "starfield.js"}}" defer></script>
   <script src="{{asset "code.js"}}" defer></script>
   <script src="{{asset "mermaid.js"}}" defer></script>
   <script src="{{asset "toc.js"}}" defer></script>

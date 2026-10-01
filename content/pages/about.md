@@ -9,6 +9,24 @@ description: "你好，我是 Chirmmy，一名喜欢折腾的开发者。"
 
 这个网站由我从零自研的静态站点生成器驱动 —— 用 Go 编写，从 Markdown 渲染、模板引擎到并发构建都是亲手实现的。目的很简单：在造轮子的过程中理解 Web 的底层原理。
 
+## 人生轨迹
+
+2001~2019: 小孩
+
+2019~2023: 西华大学
+
+2023~2026: 中国石油大学（华东）
+
+主要研究领域: 深度学习、计算机视觉、遥感
+
+主要研究成果:
+
+[1] Li X , Yang Z , Li W .CauseHSI: Counterfactual-Augmented Domain Generalization for Hyperspectral Image Classification via Causal Disentanglement[J].Journal of Imaging, 2026, 12(2).
+[2] 
+
+
+2026~now: 小米人
+
 ## 我在做什么
 
 - 🔧 用 Go 构建工具与后端服务
@@ -16,6 +34,8 @@ description: "你好，我是 Chirmmy，一名喜欢折腾的开发者。"
 - 🌱 持续学习，保持好奇心
 
 ## 联系我
+
+如果你也喜欢专研技术，Callme:
 
 - [GitHub](https://github.com/chirmmy)
 - Email: yang_zc@aliyun.com

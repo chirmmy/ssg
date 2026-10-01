@@ -5,6 +5,7 @@ pubDate: 2025-08-08
 updated: 2025-08-08
 tags: [笔记, Github]
 draft: false
+featured: true
 cover: https://qiniu.anburger.site/cover/Note.webp
 ---
 

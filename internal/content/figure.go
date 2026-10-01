@@ -98,16 +98,38 @@ func (r *figureHTMLRenderer) render(w util.BufWriter, source []byte, n ast.Node,
 		return ast.WalkContinue, nil
 	}
 
-	// 退出时用图片 alt 文本输出图注
+	// 退出时用图片 alt 文本输出图注。
+	// alt 常常是自动生成的文件名（image-20250809…），那不是图注 —— 这种时候
+	// 输出空图注，让 CSS 的计数器只显示「图 N」徽标。
 	if img, ok := n.FirstChild().(*ast.Image); ok {
-		if alt := extractAlt(img, source); alt != "" {
-			w.WriteString(`<figcaption class="figure__caption">`)
-			w.Write(util.EscapeHTML([]byte(alt)))
-			w.WriteString(`</figcaption>`)
+		alt := extractAlt(img, source)
+		if isFilenameAlt(alt) {
+			alt = ""
 		}
+		// 有 <img> 就一定给 figcaption：编号徽标由 CSS 的 ::before 生成
+		w.WriteString(`<figcaption class="figure__caption">`)
+		w.Write(util.EscapeHTML([]byte(alt)))
+		w.WriteString(`</figcaption>`)
 	}
 	w.WriteString(`</figure>`)
 	return ast.WalkContinue, nil
+}
+
+// isFilenameAlt 判断 alt 是否只是自动生成的文件名（image-20250809130637620 之类）。
+func isFilenameAlt(alt string) bool {
+	if alt == "" {
+		return false
+	}
+	if !strings.HasPrefix(alt, "image-") && !strings.HasPrefix(alt, "image_") {
+		return false
+	}
+	// image-<数字> 或 image_<数字> 形式（数字之间允许 - 与 _）
+	for _, r := range alt[6:] {
+		if r != '-' && r != '_' && (r < '0' || r > '9') {
+			return false
+		}
+	}
+	return true
 }
 
 // extractAlt 收集节点的全部文本作为 alt（goldmark 用 Text 子节点承载 alt 内容）。

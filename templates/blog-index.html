@@ -4,21 +4,76 @@
 <body>
   <a href="#main" class="skip-link">跳到主内容</a>
   {{template "header" .}}
-  <main id="main" class="main--wide" tabindex="-1">
-    {{template "breadcrumb" (dict "Title" "博客")}}
-    <h1 class="enter">博客</h1>
-    {{if .Posts}}
-      <div class="post-list post-list--cards">
-        {{range $i, $p := .Posts}}
-          <div data-reveal {{if lt $i 4}}data-reveal-delay="{{$i}}"{{end}}>
-            {{template "post-card" $p}}
+  <main id="main" class="main--flow" tabindex="-1">
+    <div class="fx" aria-hidden="true"></div>
+
+    <div class="list-grid">
+      <div class="list-main">
+
+        <header class="list-head">
+          <p class="list-head__eyebrow enter">博客</p>
+          <h1 class="list-head__title enter" data-enter-delay="1">记录技术与思考</h1>
+          <p class="list-head__sub enter" data-enter-delay="2">{{.Site.Config.Site.Description}}：把折腾过的东西写下来，免得下次再踩一遍。</p>
+          <div class="list-head__stats enter" data-enter-delay="3">
+            <span>共 <b>{{.Total}}</b> 篇</span>
+            <span class="dot" aria-hidden="true"></span>
+            <span>累计 <b>{{num .TotalChars}}</b> 字符</span>
+            {{if not .LastUpdated.IsZero}}
+              <span class="dot" aria-hidden="true"></span>
+              <span>最近更新 <b>{{dateFormat .LastUpdated "2006-01-02"}}</b></span>
+            {{end}}
+            <a class="btn-ghost list-head__rss" href="/rss.xml">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/>
+                <circle cx="5" cy="19" r="1.6" fill="currentColor" stroke="none"/>
+              </svg>
+              订阅 RSS
+            </a>
           </div>
+        </header>
+
+        {{if .Posts}}
+          {{template "featured" .}}
+          {{template "list-filters" .}}
+
+          <div data-list>
+            {{range .Months}}
+              <section class="mgroup" id="month-{{.Key}}" data-month="{{.Key}}">
+                <h2 class="mgroup__h">
+                  <time datetime="{{.Key}}">{{.Label}}</time>
+                  <span class="mgroup__n" data-mgroup-n>{{.Count}} 篇</span>
+                </h2>
+                <div class="blist">
+                  {{range .Posts}}{{template "list-card" .}}{{end}}
+                </div>
+              </section>
+            {{end}}
+          </div>
+
+          <div class="empty" data-empty hidden>
+            <svg class="empty__icon" viewBox="0 0 64 64" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="28" cy="28" r="16"/><path d="m40 40 12 12"/>
+            </svg>
+            <h2 class="empty__title">没有匹配的文章</h2>
+            <p class="empty__desc">换个关键词，或者清除当前的标签筛选。</p>
+            <p class="empty__actions"><button type="button" class="btn-ghost" data-clear>清除筛选</button></p>
+          </div>
+
+          {{/* 分页：当前 13 篇不需要。partials/pagination.html 结构已备好，
+               接入分页路由后在这里渲染即可（注意 HTML 注释里的模板动作依然会执行，
+               所以这里只写文字、不写动作）。 */}}
+        {{else}}
+          {{template "empty" (dict "Title" "还没有文章" "Desc" "稍后再来看看吧。")}}
         {{end}}
+
       </div>
-    {{else}}
-      {{template "empty" (dict "Title" "还没有文章" "Desc" "稍后再来看看吧。")}}
-    {{end}}
+
+      {{template "list-sidebar" .}}
+    </div>
   </main>
   {{template "footer" .}}
+  <script src="{{asset "list-filter.js"}}" defer></script>
 </body>
 </html>{{end}}

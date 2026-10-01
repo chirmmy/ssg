@@ -1,30 +1,33 @@
 /* ==========================================================================
    Critical CSS
    Inlined into <head> in production. Keep under ~3KB uncompressed.
-   Only contains above-the-fold styles.
+   Only contains above-the-fold styles. 令牌必须与 assets/style.css 同步 ——
+   这里的调色板是 style.css 的副本，改一处就要改两处，否则首屏会闪一下旧色。
    ========================================================================== */
 
 :root {
   /* Color */
-  --color-bg: #ffffff;
-  --color-bg-subtle: #f7f7f8;
+  --color-bg: #e6eaf0;
+  --color-bg-subtle: #eff2f6;
   --color-bg-elevated: #ffffff;
-  --color-fg: #111111;
-  --color-fg-muted: #666666;
-  --color-fg-subtle: #767676;
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-strong: rgba(0, 0, 0, 0.16);
+  --color-bg-code: #fbfcfd;
+  --color-inline-code: rgba(37, 99, 235, 0.075);
+  --color-fg: #23282f;
+  --color-fg-strong: #0b0e12;
+  --color-fg-muted: #5c636c;
+  --color-fg-subtle: #8b929c;
+  --color-border: rgba(14, 20, 32, 0.11);
+  --color-border-strong: rgba(14, 20, 32, 0.20);
+  --color-card-border: rgba(14, 20, 32, 0.14);
   --color-accent: #2563eb;
   --color-accent-hover: #1d4ed8;
+  --color-accent-soft: rgba(37, 99, 235, 0.10);
   --color-accent-fg: #ffffff;
 
   /* Spacing (subset) */
   --space-2: 0.5rem;
-  --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-6: 1.5rem;
   --space-8: 2rem;
-  --space-12: 3rem;
   --space-16: 4rem;
 
   /* Typography (subset) */
@@ -33,8 +36,8 @@
                "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans SC",
                "Noto Sans CJK SC", "Helvetica Neue", Arial, sans-serif;
 
+  --text-sm: 0.875rem;
   --text-base: 1rem;
-  --text-lg: 1.125rem;
   --text-3xl: 2rem;
 
   --leading-tight: 1.3;
@@ -45,28 +48,44 @@
   --weight-bold: 700;
 
   /* Radius */
-  --radius-md: 6px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Shadow */
+  --shadow-md: 0 1px 2px rgba(16, 24, 40, 0.05), 0 18px 40px -22px rgba(16, 24, 40, 0.22);
 
   /* Layout */
   --content-width: 720px;
   --wide-width: 1080px;
+  --measure: 44rem;
+  --rail-w: 15rem;
+  --grid-width: 1240px;
   --page-padding: 1.25rem;
-  --header-height: 60px;
+  --header-height: 56px;
 }
 
 [data-theme="dark"] {
-  --color-bg: #0e0e10;
-  --color-bg-subtle: #1a1a1c;
-  --color-bg-elevated: #1f1f22;
+  --color-bg: #08090c;
+  --color-bg-subtle: #171922;
+  --color-bg-elevated: #101116;
+  --color-bg-code: #0b0c10;
+  --color-inline-code: rgba(96, 165, 250, 0.14);
   /* 与 style.css 暗色主题保持同步：正文 ~78% 亮度，避免深底高对比刺眼 */
-  --color-fg: #c9ccd1;
-  --color-fg-muted: #a0a0a0;
-  --color-fg-subtle: #8a8a8a;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
+  --color-fg: #c4c9d2;
+  --color-fg-strong: #eef1f6;
+  --color-fg-muted: #98a0ac;
+  --color-fg-subtle: #79818e;
+  --color-border: rgba(255, 255, 255, 0.075);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+  --color-card-border: rgba(255, 255, 255, 0.10);
   --color-accent: #60a5fa;
   --color-accent-hover: #93c5fd;
-  --color-accent-fg: #0e0e10;
+  --color-accent-soft: rgba(96, 165, 250, 0.14);
+  --color-accent-fg: #08090c;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 24px -18px rgba(0, 0, 0, 0.8);
+  --shadow-md: 0 1px 0 rgba(255, 255, 255, 0.035) inset, 0 30px 60px -32px rgba(0, 0, 0, 0.85);
 }
 
 @media (min-width: 768px) {
@@ -95,22 +114,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* —— 顶栏 —— */
 .site-header {
   flex: 0 0 auto;
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--color-bg);
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
   border-bottom: 1px solid var(--color-border);
 }
 
 .site-header__inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-4);
   height: var(--header-height);
-  max-width: var(--wide-width);
+  max-width: var(--grid-width);
   margin: 0 auto;
   padding: 0 var(--page-padding);
 }
@@ -120,14 +141,49 @@ body {
   align-items: center;
   gap: var(--space-2);
   font-weight: var(--weight-semibold);
-  font-size: var(--text-base);
-  color: var(--color-fg);
+  font-size: 0.9375rem;
+  color: var(--color-fg-strong);
   text-decoration: none;
   white-space: nowrap;
 }
 
-.site-footer { flex: 0 0 auto; }
+.site-header__mark {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  max-width: none;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
 
+.site-header__mark svg { width: 16px; height: 16px; }
+.site-header__name { line-height: 1; }
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.site-header__nav a {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  padding: 0.25rem 0.625rem;
+}
+
+.site-header__nav a[aria-current="page"] { color: var(--color-fg-strong); }
+
+.site-header__actions { display: flex; align-items: center; gap: var(--space-2); }
+
+@media (max-width: 620px) { .site-header__name { display: none; } }
+
+/* —— 页面骨架 —— */
 main {
   flex: 1 0 auto;
   width: 100%;
@@ -135,6 +191,43 @@ main {
   margin: 0 auto;
   padding: var(--space-8) var(--page-padding) var(--space-16);
 }
+
+.main--wide { max-width: var(--wide-width); }
+
+.main--flow {
+  position: relative;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-grid,
+.list-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+  max-width: var(--grid-width);
+  margin: 0 auto;
+  padding: 2rem var(--page-padding) var(--space-16);
+}
+
+@media (min-width: 1100px) {
+  .post-grid { grid-template-columns: minmax(0, 60rem) var(--rail-w); }
+  .list-grid { grid-template-columns: minmax(0, 60rem) var(--rail-w); }
+}
+
+.sheet {
+  min-width: 0;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2.5rem 2rem;
+}
+
+@media (min-width: 768px) { .sheet { padding: 3.25rem 3rem 3rem; } }
 
 h1 {
   font-size: var(--text-3xl);
@@ -148,25 +241,8 @@ p {
   line-height: var(--leading-relaxed);
 }
 
-.hero {
-  padding: var(--space-12) 0 var(--space-8);
-}
-
-.hero h1 {
-  font-size: clamp(2rem, 5vw + 1rem, 2.75rem);
-  letter-spacing: -0.025em;
-  margin: 0 0 var(--space-4);
-}
-
-.hero p {
-  color: var(--color-fg-muted);
-  font-size: clamp(1rem, 1.5vw + 0.75rem, 1.125rem);
-  margin: 0 0 var(--space-6);
-  max-width: 44ch;
-}
-
 .content a {
   color: var(--color-accent);
   text-decoration: underline;
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.22em;
 }

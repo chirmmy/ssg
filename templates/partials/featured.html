@@ -1,0 +1,33 @@
+{{define "featured"}}
+{{/* 精选大卡。用法：{{template "featured" .}}（BlogIndexData，读 .Featured） */}}
+{{with .Featured}}
+<article class="feat{{if not .Cover}} feat--nocover{{end}}">
+  {{if .Cover}}
+    <div class="feat__cover">
+      <img src="{{.Cover}}" alt="" loading="lazy" decoding="async" width="640" height="400">
+    </div>
+  {{end}}
+  <div class="feat__body">
+    <span class="feat__badge">{{if .Featured}}精选{{else}}最新{{end}}</span>
+    <h2 class="feat__title"><a class="bcard__link" href="/blog/{{.Slug}}/">{{.Title}}</a></h2>
+    {{if .Description}}<p class="feat__desc">{{.Description}}</p>{{end}}
+    {{if .Tags}}
+      <ul class="feat__tags">
+        {{range .Tags}}<li>{{.}}</li>{{end}}
+      </ul>
+    {{end}}
+    <div class="feat__meta">
+      <time datetime="{{dateFormat .PubDate "2006-01-02"}}">{{dateFormat .PubDate "2006-01-02"}}</time>
+      {{if .WordCount}}
+        <span class="dot" aria-hidden="true"></span>
+        <span>{{num .WordCount}} 字符</span>
+      {{end}}
+      {{if .ReadingTime}}
+        <span class="dot" aria-hidden="true"></span>
+        <span>{{.ReadingTime}} 分钟</span>
+      {{end}}
+    </div>
+  </div>
+</article>
+{{end}}
+{{end}}

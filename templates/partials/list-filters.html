@@ -1,0 +1,54 @@
+{{define "list-filters"}}
+{{/* 筛选栏：搜索 + 标签 chips + 密度切换。用法：{{template "list-filters" .}}（BlogIndexData） */}}
+<div class="filters" data-filters>
+  <div class="filters__row">
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+      </svg>
+      <input type="search" data-search placeholder="搜索标题、摘要、标签" aria-label="搜索文章">
+    </label>
+
+    <div class="chips" data-chips>
+      <button type="button" class="chip is-on" data-chip="">全部 <span class="chip__n">{{.Total}}</span></button>
+      {{range .PinnedTags}}
+        <button type="button" class="chip" data-chip="{{.Name}}">{{.Name}} <span class="chip__n">{{.Count}}</span></button>
+      {{end}}
+      {{if .RestTags}}
+        <button type="button" class="chips-more" data-chips-more>更多 <span>+{{len .RestTags}}</span></button>
+        <span class="chips__extra" data-chips-extra hidden>
+          {{range .RestTags}}
+            <button type="button" class="chip" data-chip="{{.Name}}">{{.Name}} <span class="chip__n">{{.Count}}</span></button>
+          {{end}}
+        </span>
+      {{end}}
+    </div>
+
+    <span class="filters__spacer"></span>
+
+    <span class="viewseg" role="group" aria-label="列表密度">
+      <button type="button" data-set-mode="card" class="is-on" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/>
+          <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/>
+        </svg>
+        卡片
+      </button>
+      <button type="button" data-set-mode="row" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        列表
+      </button>
+    </span>
+  </div>
+
+  <p class="filters__status">
+    <span data-status-text>显示 {{.Total}} / {{.Total}} 篇</span>
+    <button type="button" class="filters__clear" data-clear hidden>清除筛选</button>
+  </p>
+</div>
+{{end}}

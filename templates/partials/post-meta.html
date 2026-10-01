@@ -1,15 +1,36 @@
 {{define "post-meta"}}
-<div class="post-meta">
-  <span class="post-meta__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg><time datetime="{{dateFormat .PubDate "2006-01-02"}}">{{dateFormat .PubDate "2006-01-02"}}</time></span>
-  {{if .ReadingTime}}
-    <span class="post-meta__sep">·</span>
-    <span class="post-meta__item">{{.ReadingTime}} 分钟阅读</span>
+{{/* 用法：{{template "post-meta" .}}，传入 PostData（需要 .Post / .Site） */}}
+<div class="metabar">
+  <span class="metabar__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>
+    </svg>
+    <time datetime="{{dateFormat .Post.PubDate "2006-01-02"}}">{{dateFormat .Post.PubDate "2006-01-02"}}</time>
+  </span>
+
+  {{if .Post.WordCount}}
+    <span class="metabar__dot" aria-hidden="true"></span>
+    <span class="metabar__item">{{num .Post.WordCount}} 字符</span>
   {{end}}
-  {{if .Tags}}
-    <span class="post-meta__sep">·</span>
-    <span class="post-meta__item">
-      {{range $i, $t := .Tags}}{{if $i}}，{{end}}{{template "tag" $t}}{{end}}
-    </span>
+
+  {{if .Post.ReadingTime}}
+    <span class="metabar__dot" aria-hidden="true"></span>
+    <span class="metabar__item">{{.Post.ReadingTime}} 分钟</span>
   {{end}}
+
+  {{if .Post.UpdatedLater}}
+    <span class="metabar__dot" aria-hidden="true"></span>
+    <span class="metabar__item">更新于 {{dateFormat .Post.Updated "2006-01-02"}}</span>
+  {{end}}
+
+  <button type="button" class="metabar__copy" data-copy-link>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5"/>
+      <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7L12 19"/>
+    </svg>
+    <span>复制链接</span>
+  </button>
 </div>
 {{end}}

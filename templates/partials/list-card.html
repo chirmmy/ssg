@@ -1,0 +1,33 @@
+{{define "list-card"}}
+{{/* 列表页卡片。用法：{{template "list-card" $post}}（*content.Content） */}}
+<article class="bcard{{if not .Cover}} bcard--nocover{{end}}"
+         data-tags="{{.TagAttr}}"
+         data-date="{{dateFormat .PubDate "2006-01-02"}}"
+         data-search="{{.SearchKey}}">
+  {{if .Cover}}
+    <div class="bcard__cover">
+      <img src="{{.Cover}}" alt="" loading="lazy" decoding="async" width="640" height="360">
+    </div>
+  {{end}}
+  <div class="bcard__body">
+    <p class="bcard__meta">
+      <time datetime="{{dateFormat .PubDate "2006-01-02"}}">{{dateFormat .PubDate "2006-01-02"}}</time>
+      {{if .WordCount}}
+        <span class="dot" aria-hidden="true"></span>
+        <span>{{num .WordCount}} 字符</span>
+      {{end}}
+      {{if .ReadingTime}}
+        <span class="dot" aria-hidden="true"></span>
+        <span>{{.ReadingTime}} 分钟</span>
+      {{end}}
+    </p>
+    <h3 class="bcard__title"><a class="bcard__link" href="/blog/{{.Slug}}/">{{.Title}}</a></h3>
+    {{if .Description}}<p class="bcard__desc">{{.Description}}</p>{{end}}
+    {{if .Tags}}
+      <ul class="bcard__tags">
+        {{range .Tags}}<li>{{.}}</li>{{end}}
+      </ul>
+    {{end}}
+  </div>
+</article>
+{{end}}

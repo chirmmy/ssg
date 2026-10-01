@@ -1,3 +1,5 @@
 {{define "tag"}}
-<a class="tag" href="/tags/{{.}}/">{{.}}</a>
+{{/* 标签链接指向列表页的客户端筛选：/blog/?tag=xxx。
+     原先是 /tags/xxx/，但构建器从来没有生成过 /tags/ 路由，全站标签链接都是 404。 */}}
+<a class="tag" href="/blog/?tag={{urlquery .}}">{{.}}</a>
 {{end}}

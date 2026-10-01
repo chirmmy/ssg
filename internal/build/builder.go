@@ -11,6 +11,7 @@ import (
 	"github.com/chirmmy/ssg/internal/asset"
 	"github.com/chirmmy/ssg/internal/config"
 	"github.com/chirmmy/ssg/internal/content"
+	"github.com/chirmmy/ssg/internal/feed"
 	"github.com/chirmmy/ssg/internal/render"
 	"github.com/chirmmy/ssg/internal/site"
 	"github.com/chirmmy/ssg/internal/template"
@@ -72,6 +73,25 @@ func (b *Builder) Build(ctx context.Context) error {
 
 	s := site.NewSite(b.Config, items)
 
+	// 展开正文里的短代码（{{<externalLinkCard>}} / {{<postLinkCard>}}）。
+	// 必须在 site 建好之后做：postLinkCard 需要按 slug 查另一篇文章的标题。
+	for _, it := range s.Posts {
+		it.Body = content.ExpandShortcodes(it.Body, func(slug string) (string, bool) {
+			if p := s.PostBySlug(slug); p != nil {
+				return p.Title, true
+			}
+			return "", false
+		})
+	}
+	for _, it := range s.Pages {
+		it.Body = content.ExpandShortcodes(it.Body, func(slug string) (string, bool) {
+			if p := s.PostBySlug(slug); p != nil {
+				return p.Title, true
+			}
+			return "", false
+		})
+	}
+
 	// 3. 读取关键 CSS
 	criticalCSS, err := loadCriticalCSS(b.Root, b.Config.Build.Minify, b.Dev)
 	if err != nil {
@@ -101,6 +121,15 @@ func (b *Builder) Build(ctx context.Context) error {
 	// 5. 静态资源
 	if err := copyStatic(filepath.Join(b.Root, "static"), outDir); err != nil {
 		return fmt.Errorf("static: %w", err)
+	}
+
+	// 6. RSS（页脚、列表页页头与侧栏的订阅入口都指向 /rss.xml）
+	feedBytes, err := feed.Render(b.Config, s.Posts)
+	if err != nil {
+		return fmt.Errorf("rss: %w", err)
+	}
+	if err := os.WriteFile(filepath.Join(outDir, "rss.xml"), feedBytes, 0o644); err != nil {
+		return fmt.Errorf("rss: %w", err)
 	}
 
 	return nil

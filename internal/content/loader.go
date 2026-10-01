@@ -135,6 +135,9 @@ func (l *Loader) parse(_ context.Context, path string, kind Kind) (*Content, err
 		SourcePath:  path,
 		Hash:        hex.EncodeToString(sum[:8]),
 		ReadingTime: readingTime,
+		WordCount:   countChars(string(body)),
+		Cover:       strings.TrimSpace(meta.Cover),
+		Featured:    meta.Featured,
 	}, nil
 }
 
@@ -194,4 +197,18 @@ func estimateReadingTime(text string) int {
 		return 1
 	}
 	return int(minutes + 0.5)
+}
+
+// countChars 统计正文字符数：去掉所有空白（含换行与缩进）后的字符个数。
+// 这是列表页与文章页共用的「字符数」口径，避免两处显示不一致。
+func countChars(text string) int {
+	n := 0
+	for _, r := range text {
+		switch r {
+		case ' ', '\t', '\n', '\r', '\v', '\f', '\u00a0', '\u3000':
+			continue
+		}
+		n++
+	}
+	return n
 }
