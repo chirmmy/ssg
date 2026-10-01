@@ -7,6 +7,7 @@
      此处兜底处理未经构建期包装的代码块（如无语言标注的缩进代码块）。 */
   document.querySelectorAll('.content pre').forEach(function (pre) {
     if (pre.closest('.code-block')) return;
+    if (pre.classList.contains('mermaid')) return; // mermaid 由 mermaid.js 渲染，不做代码块包装
 
     var wrapper = document.createElement('div');
     wrapper.className = 'code-block';

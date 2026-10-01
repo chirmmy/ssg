@@ -97,7 +97,9 @@
   --color-bg: #0e0e10;
   --color-bg-subtle: #1a1a1c;
   --color-bg-elevated: #1f1f22;
-  --color-fg: #e6e6e6;
+  /* 正文用 ~78% 亮度的灰而非纯白级亮度：深底高对比长时间阅读刺眼；
+     层级：fg #c9ccd1 > muted #a0a0a0 > subtle #8a8a8a 仍成立 */
+  --color-fg: #c9ccd1;
   --color-fg-muted: #a0a0a0;
   --color-fg-subtle: #8a8a8a;
   --color-border: rgba(255, 255, 255, 0.08);
@@ -203,12 +205,24 @@ main {
   max-width: var(--wide-width);
 }
 
-/* 画框修饰（仅文章阅读页）：独立底色 + 四周边框 + 圆角，与两侧星空形成「画框」效果 */
+/* 画框修饰（仅文章阅读页）：独立底色 + 四周边框 + 圆角 + 投影，与两侧星空形成「画框」效果。
+   层次感来自内外底色差：亮色主题两侧压暗一档（bg-subtle）、画框保持纯白浮起；
+   暗色主题画框用 elevated 色比两侧亮一档。 */
 .main--framed {
-  background: var(--color-bg);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   margin: var(--space-6) auto;
+  box-shadow: var(--shadow-lg);
+}
+
+/* 文章页两侧：亮色主题压暗一档衬托白色画框（暗色主题两侧保持最深的 bg） */
+.page-post {
+  background: var(--color-bg-subtle);
+}
+
+[data-theme="dark"] .page-post {
+  background: var(--color-bg);
 }
 
 @media (min-width: 768px) {
@@ -1167,6 +1181,25 @@ html[data-theme-preference="dark"] .theme-toggle__icon[data-theme-icon="dark"] {
   letter-spacing: -0.02em;
 }
 
+/* 文章头部标题区：标题 + 元信息，与正文以分隔线割开；
+   分隔线左端一小段主题色作为视觉锚点 */
+.post__header {
+  position: relative;
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.post__header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 56px;
+  height: 1px;
+  background: var(--color-accent);
+}
+
 .post time {
   display: block;
   color: var(--color-fg-subtle);
@@ -1606,6 +1639,44 @@ a.tag:hover {
 [data-theme="dark"] .callout--tip     .callout__title { color: #047857; } /* 4.6:1 */
 [data-theme="dark"] .callout--warning .callout__title { color: #b45309; } /* 4.7:1 */
 [data-theme="dark"] .callout--danger  .callout__title { color: #f87171; }
+
+/* ==========================================================================
+   24g. Components — Mermaid
+   ========================================================================== */
+
+.content .mermaid-block {
+  margin: 1.8em 0;
+}
+
+.content .mermaid-block .mermaid {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  text-align: left;
+}
+
+/* 渲染完成：图表居中，svg 自适应宽度，超宽横向滚动 */
+.content .mermaid-block .mermaid.is-rendered {
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+}
+
+.content .mermaid-block .mermaid.is-rendered svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 语法错误 / CDN 加载失败：源码降级展示 */
+.content .mermaid-block .mermaid.is-error {
+  color: var(--color-fg-subtle);
+  font-size: var(--text-xs);
+}
 
 /* ==========================================================================
    24f. Components — Code Block (mac style / collapsible)

@@ -76,6 +76,19 @@ type figureHTMLRenderer struct{}
 
 func (r *figureHTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(KindFigureBlock, r.render)
+	reg.Register(KindMermaidBlock, r.renderMermaid)
+}
+
+// renderMermaid 输出 mermaid 占位块，源码转义后由前端 mermaid 库渲染。
+func (r *figureHTMLRenderer) renderMermaid(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	blk := n.(*MermaidBlock)
+	w.WriteString(`<div class="mermaid-block"><pre class="mermaid">`)
+	w.Write(util.EscapeHTML(blk.Code))
+	w.WriteString(`</pre></div>`)
+	return ast.WalkSkipChildren, nil
 }
 
 func (r *figureHTMLRenderer) render(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {

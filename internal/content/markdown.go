@@ -96,7 +96,10 @@ func NewMarkdown(highlightStyle string) *Markdown {
 	goldmark.WithParserOptions(
 		parser.WithAutoHeadingID(), // Automatically generate heading IDs
 		// 独占一段的图片 → <figure class="figure"> + figcaption 图注
-		parser.WithASTTransformers(util.Prioritized(&figureTransformer{}, 100)),
+		parser.WithASTTransformers(
+			util.Prioritized(&figureTransformer{}, 100),
+			util.Prioritized(&mermaidTransformer{}, 90), // ```mermaid → 前端渲染占位块
+		),
 	),
 	goldmark.WithRendererOptions(
 		html.WithUnsafe(), // Allow raw HTML in Markdown

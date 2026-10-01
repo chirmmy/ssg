@@ -58,7 +58,8 @@
   --color-bg: #0e0e10;
   --color-bg-subtle: #1a1a1c;
   --color-bg-elevated: #1f1f22;
-  --color-fg: #e6e6e6;
+  /* 与 style.css 暗色主题保持同步：正文 ~78% 亮度，避免深底高对比刺眼 */
+  --color-fg: #c9ccd1;
   --color-fg-muted: #a0a0a0;
   --color-fg-subtle: #8a8a8a;
   --color-border: rgba(255, 255, 255, 0.08);
