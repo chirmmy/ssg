@@ -23,3 +23,36 @@ jobs:
 
     - name: Build
       run: go run ./cmd/ssg build
+    
+    - name: Upload dist
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/
+  
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+
+    - name: remove old dist
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: rm -rf /opt/static/blog/dist/*
+
+    - name: Upload dist to Server
+      uses: appleboy/scp-action@v0.1.7
+      with: 
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "dist/*"
+        target: "/opt/static/blog/dist"
+        strip_components: 1
