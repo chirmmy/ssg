@@ -7,9 +7,6 @@ tags: [Typora, python, 图床]
 draft: false
 ---
 
-
-
-
 Typora插入图片时可以将其自动上传到图床中，在之前的文章中介绍了使用`PicGO`作为上传服务。
 
 {{<postLinkCard path="PicGo-Typora" cover="https://qiniu.anburger.site/cover/Tech.webp">}}

@@ -1404,6 +1404,20 @@ a.tag:hover {
    24d. Components — TOC
    ========================================================================== */
 
+/* 锚点定位：给 sticky header 留出偏移，标题不会顶进毛玻璃下沿 */
+.content h2,
+.content h3,
+.content h4 {
+  scroll-margin-top: calc(var(--header-height) + var(--space-4));
+}
+
+/* 锚点跳转平滑滚动（首页 snap 布局除外；系统减少动效时由全局规则降级为 auto） */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.snap-home) {
+    scroll-behavior: smooth;
+  }
+}
+
 .toc {
   margin: 0 0 var(--space-8);
   padding: var(--space-4) var(--space-5);
@@ -1436,6 +1450,8 @@ a.tag:hover {
 .toc__item { margin: var(--space-1) 0; }
 
 .toc__link {
+  display: block;
+  padding: var(--space-1) 0;
   color: var(--color-fg-muted);
   text-decoration: none;
   line-height: var(--leading-normal);
@@ -1446,6 +1462,87 @@ a.tag:hover {
 
 .toc__link.is-active {
   color: var(--color-accent);
+  font-weight: var(--weight-medium);
+}
+
+/* --------------------------------------------------------------------------
+   目录栏（宽屏）：固定于文章画框右侧空白区，树形参考线 + 高亮指示条
+   画框宽 --wide-width=1080px，两侧空白 ≥ 210px（vw ≥ 1500px）时启用；
+   位置推导：left = 50% + 540 + 24（留出与画框的间距），宽度吃满剩余空白
+   -------------------------------------------------------------------------- */
+.toc-rail {
+  display: none;
+}
+
+@media (min-width: 1500px) {
+  .toc-rail {
+    display: block;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: calc(50% + 540px + 24px);
+    width: calc(50vw - 540px - 24px - var(--page-padding));
+    max-width: 280px;
+    max-height: 72vh;
+    overflow-y: auto;
+    padding-right: var(--space-2);
+    font-size: var(--text-sm);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+
+  /* 同屏隐藏画框内的顶部目录，避免重复 */
+  .main--framed .toc {
+    display: none;
+  }
+}
+
+.toc-rail .toc__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  white-space: nowrap;
+}
+
+.toc-rail .toc__title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.toc-rail .toc__list {
+  border-left: 1px solid var(--color-border);
+}
+
+.toc-rail .toc__list .toc__list {
+  margin-left: var(--space-4);
+  margin-top: 2px;
+}
+
+.toc-rail .toc__item { margin: 0; }
+
+.toc-rail .toc__link {
+  position: relative;
+  margin-left: -1px;
+  padding: var(--space-1) 0 var(--space-1) var(--space-4);
+  border-left: 2px solid transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+}
+
+.toc-rail .toc__link:hover {
+  color: var(--color-fg);
+  border-left-color: var(--color-border-strong);
+}
+
+.toc-rail .toc__link.is-active {
+  color: var(--color-accent);
+  border-left-color: var(--color-accent);
   font-weight: var(--weight-medium);
 }
 
@@ -2230,9 +2327,14 @@ html.snap-home .home-content {
   height: 18px;
 }
 
-/* Hero 内按钮放大 + 胶囊形 */
+/* Hero 内按钮放大 + 胶囊形。
+   两按钮等宽对称（flex:1 + min/max 约束），使中间分隔线正好落在页面竖直中轴上，
+   与 SCROLL 标识同轴；文字由 .btn 自带的 inline-flex 居中 */
 .hero-fullscreen__actions .btn {
-  padding: var(--space-3) var(--space-6);
+  flex: 1 1 0;
+  min-width: 148px;
+  max-width: 200px;
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-full);
   font-size: var(--text-base);
 }
@@ -2276,6 +2378,7 @@ html.snap-home .home-content {
   /* 内容纸边缘会盖住 Hero 底部 ~44px，提示需要停在纸边上沿 */
   bottom: calc(var(--space-8) + 52px);
   left: 50%;
+  transform: translateX(-50%);
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -2286,6 +2389,11 @@ html.snap-home .home-content {
   letter-spacing: 0.22em;
   text-transform: uppercase;
   pointer-events: none;
+}
+
+/* letter-spacing 会在末字符后多出一段间距，负外边距抵消，保证视觉真正居中 */
+.hero-fullscreen__scroll-hint > span {
+  margin-right: -0.22em;
 }
 
 .hero-fullscreen__scroll-mouse {

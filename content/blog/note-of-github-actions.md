@@ -132,10 +132,9 @@ git commit -m "first commit"	# 提交到本地仓库
 git push -u origin main		# 推送到远程main分支
 ```
 
-<div style="display: flex;">
-	<img src="https://qiniu.anburger.site/post/image-20250809174945421.png" alt="image-20250809174945421"/>
-    <img src="https://qiniu.anburger.site/post/image-20250809175308575.png" alt="image-20250809175308575"/>
-</div>
+![image-20250809174945421](https://qiniu.anburger.site/post/image-20250809174945421.png)
+
+![image-20250809175308575](https://qiniu.anburger.site/post/image-20250809175308575.png)
 
 :two: pull_request
 
