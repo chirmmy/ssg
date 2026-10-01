@@ -44,11 +44,13 @@
 
 {{if isDev}}
   <link rel="stylesheet" href="{{asset "style.css"}}">
+  <link rel="stylesheet" href="{{asset "chroma.css"}}">
 {{else}}
   {{criticalCSS}}
   <!-- style.css 仅 ~10KB(gzip)，阻塞式加载毫秒级完成；
        不要用 media="print" 异步技巧——会导致完整样式生效前出现约 1s 的无样式跳动 -->
   <link rel="stylesheet" href="{{asset "style.css"}}">
+  <link rel="stylesheet" href="{{asset "chroma.css"}}">
 {{end}}
 
 <script src="{{asset "theme.js"}}" defer></script>

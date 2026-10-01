@@ -9,7 +9,7 @@ draft: false
 # 1 简介
 CauseHSI项目为论文CauseHSI: Cross-scene Hyperspectral image classifaction via Causal Disentanglement提供代码实现。CauseHSI用于高光谱图像跨场景分类任务，其架构图如下：
 
-![image-20250724193644712](https://qiniu.anburger.site/post/image-20250724193644712.png)
+![图1 CauseHSI架构图](https://qiniu.anburger.site/post/image-20250724193644712.png)
 
 CauseHSI主要分为两个部分：生成模块Generation Module(CGM)和因果解耦模块Causal Disentanglement Module(CDM)
 

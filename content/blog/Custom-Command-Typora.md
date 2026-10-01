@@ -156,10 +156,9 @@ def compress_image(file_path, quality=80):
 
 `文件->偏好设置`，选择`图像`，上传服务选择`Custom Command`，命令`python "your_local_path\typora-uploader.py"`。
 
-<div style="display: flex;">
-    <img src="https://qiniu.anburger.site/post/image-20250808112047535.png" alt="image-20250808112047535" />
-    <img src="https://qiniu.anburger.site/post/image-20250808112605560.png" alt="image-20250808112605560" />
-</div>
+![image-20250808112047535](https://qiniu.anburger.site/post/image-20250808112047535.png)
+
+![image-20250808112605560](https://qiniu.anburger.site/post/image-20250808112605560.png)
 
 配置完成后，可以点击`验证图片上传选项`，它会上传两张默认图像进行测试。
 
