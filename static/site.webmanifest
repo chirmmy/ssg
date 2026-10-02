@@ -1,7 +1,7 @@
 {
-  "name": "站点全名",
-  "short_name": "短名",
-  "description": "站点描述",
+  "name": "Chirmmy's HomePage",
+  "short_name": "Chirmmy",
+  "description": "记录技术与思考",
   "start_url": "/",
   "display": "minimal-ui",
   "background_color": "#ffffff",
