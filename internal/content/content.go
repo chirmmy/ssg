@@ -13,6 +13,14 @@ const (
 	KindPost Kind = "post"
 )
 
+// Fact 是页面头部「事实行」里的一条：教育 / 研究方向 这类键值对。
+// Icon 可选，对应模板里的一小组内联图标（education / research / work / mail）。
+type Fact struct {
+	Icon  string `yaml:"icon"`
+	Label string `yaml:"label"`
+	Value string `yaml:"value"`
+}
+
 type Content struct {
 	Kind        Kind
 	Slug        string
@@ -31,6 +39,8 @@ type Content struct {
 	WordCount   int // 正文字符数（去掉所有空白）
 	Cover       string
 	Featured    bool
+	Eyebrow     string // 页面头的小标签（可选）
+	Facts       []Fact // 页面头的事实行（可选）
 }
 
 type Frontmatter struct {
@@ -42,6 +52,8 @@ type Frontmatter struct {
 	Draft       bool     `yaml:"draft"`
 	Cover       string   `yaml:"cover"`
 	Featured    bool     `yaml:"featured"`
+	Eyebrow     string   `yaml:"eyebrow"`
+	Facts       []Fact   `yaml:"facts"`
 }
 
 // UpdatedLater 判断这篇文章是否被更新过（loader 里 updated 缺省等于 pubDate）。

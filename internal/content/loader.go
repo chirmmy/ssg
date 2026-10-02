@@ -138,6 +138,8 @@ func (l *Loader) parse(_ context.Context, path string, kind Kind) (*Content, err
 		WordCount:   countChars(string(body)),
 		Cover:       strings.TrimSpace(meta.Cover),
 		Featured:    meta.Featured,
+		Eyebrow:     strings.TrimSpace(meta.Eyebrow),
+		Facts:       meta.Facts,
 	}, nil
 }
 

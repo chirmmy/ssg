@@ -5,6 +5,7 @@ pubDate: 2025-08-01T16:55:00+08:00
 updated: 2025-08-01T16:55:00+08:00
 tags: [云函数]
 draft: false
+cover: https://qiniu.anburger.site/cover/Note.webp
 ---
 
 ## 什么是云函数？

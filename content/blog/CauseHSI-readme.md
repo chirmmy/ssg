@@ -5,6 +5,7 @@ pubDate: 2025-07-21
 updated: 2025-07-21
 tags: ["开源", "README"]
 draft: false
+cover: https://qiniu.anburger.site/cover/Tech.webp
 ---
 # 1 简介
 CauseHSI项目为论文CauseHSI: Cross-scene Hyperspectral image classifaction via Causal Disentanglement提供代码实现。CauseHSI用于高光谱图像跨场景分类任务，其架构图如下：

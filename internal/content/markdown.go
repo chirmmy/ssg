@@ -2,8 +2,10 @@ package content
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"sync"
+	"unicode"
 
 	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/alecthomas/chroma/v2/styles"
@@ -11,6 +13,7 @@ import (
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark-emoji"
 	emjidef "github.com/yuin/goldmark-emoji/definition"
+	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
@@ -56,6 +59,74 @@ func renderCodeBlockHeader(w util.BufWriter, lang string) {
 	w.WriteString(`</div>`)
 	w.WriteString(`</div>`)
 	w.WriteString(`<div class="code-block__body">`)
+}
+
+// headingIDs 是自定义的标题 id 生成器。
+//
+// goldmark 默认的 ids.Generate 会跳过所有多字节字符（`if l != 1 { continue }`），
+// 于是纯中文标题的 id 全部退化成 heading / heading-1 / heading-2：既不可读，
+// 也不稳定 —— 在前面插入一节，后面所有 id 全部位移，外部深链接失效。
+// 这里保留中日韩字符，得到 id="人生轨迹" 这种可读且稳定的锚点（与 GitHub 对中文
+// README 的处理一致）。每渲染一篇文档都要新建一个实例，编号才会从每页重新开始。
+type headingIDs struct {
+	used map[string]bool
+}
+
+func newHeadingIDs() *headingIDs {
+	return &headingIDs{used: map[string]bool{}}
+}
+
+func (h *headingIDs) Generate(value []byte, kind ast.NodeKind) []byte {
+	id := slugifyHeading(string(value))
+	if id == "" {
+		if kind == ast.KindHeading {
+			id = "section"
+		} else {
+			id = "id"
+		}
+	}
+	// 同名标题依次加后缀，与默认实现一致
+	base := id
+	for n := 1; h.used[id]; n++ {
+		id = fmt.Sprintf("%s-%d", base, n)
+	}
+	h.used[id] = true
+	return []byte(id)
+}
+
+func (h *headingIDs) Put(value []byte) {
+	h.used[string(value)] = true
+}
+
+// slugifyHeading 把标题文本变成锚点：保留字母、数字与中日韩字符，
+// 其余字符折叠成一个连字符，去掉首尾连字符，ASCII 字母转小写。
+func slugifyHeading(s string) string {
+	var b strings.Builder
+	pendingDash := false
+	writeDash := func() {
+		if pendingDash && b.Len() > 0 {
+			b.WriteByte('-')
+		}
+		pendingDash = false
+	}
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
+			writeDash()
+			b.WriteRune(r)
+		case r >= 'A' && r <= 'Z':
+			writeDash()
+			b.WriteRune(r + ('a' - 'A'))
+		case unicode.IsLetter(r) || unicode.IsDigit(r):
+			// 中日韩字符与其它非拉丁字母原样保留
+			writeDash()
+			b.WriteRune(r)
+		default:
+			// 空格、标点、emoji、markdown 记号都折叠成一个连字符
+			pendingDash = true
+		}
+	}
+	return b.String()
 }
 
 // Markdown processor.
@@ -123,7 +194,9 @@ func (m *Markdown) Render(input []byte) ([]byte, error) {
 	buf.Reset() // Reset the buffer before use
 	defer m.bufPool.Put(buf)
 
-	if err := m.md.Convert(input, buf); err != nil {
+	// 每篇文档一份新的 id 表：标题锚点保留中文，且编号从本页重新开始
+	ctx := parser.NewContext(parser.WithIDs(newHeadingIDs()))
+	if err := m.md.Convert(input, buf, parser.WithContext(ctx)); err != nil {
 		return nil, err
 	}
 

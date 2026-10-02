@@ -55,19 +55,20 @@
 
     <div class="home-content">
       <section class="home-about">
-        <div class="home-about__card" data-reveal>
-          <div class="home-about__avatar" aria-hidden="true">C</div>
-          <div class="home-about__body">
-            <h2>你好，我是 {{.Site.Config.Site.Author}}</h2>
-            <p>一名喜欢折腾的开发者。这个网站由我从零自研的静态站点生成器驱动——用 Go 编写，从 Markdown 渲染、模板引擎到并发构建都是亲手实现的。在这里记录技术与思考。</p>
-            <ul class="home-about__tags">
+        <div class="profile" data-reveal>
+          <span class="profile__avatar" aria-hidden="true">C</span>
+          <div class="profile__body">
+            <p class="profile__eyebrow">关于我</p>
+            <h2 class="profile__title">你好，我是 {{.Site.Config.Site.Author}}</h2>
+            <p class="profile__desc">一名喜欢折腾的开发者。这个网站由我从零自研的静态站点生成器驱动——用 Go 编写，从 Markdown 渲染、模板引擎到并发构建都是亲手实现的。在这里记录技术与思考。</p>
+            <ul class="profile__tags">
               <li>Go</li>
               <li>后端开发</li>
               <li>静态站点</li>
               <li>开源</li>
             </ul>
           </div>
-          <a href="/about/" class="home-about__more">了解更多 →</a>
+          <a href="/about/" class="btn-ghost profile__more">了解更多 →</a>
         </div>
       </section>
 
@@ -75,14 +76,11 @@
       <section class="home-latest">
         <div class="home-latest__head">
           <h2>最新文章</h2>
-          <a href="/blog/" class="home-latest__all">全部文章 →</a>
+          <p class="home-latest__meta">共 {{len .Site.Posts}} 篇 · 最近更新 {{dateFormat .Site.LastUpdated "2006-01-02"}}</p>
+          <a href="/blog/" class="btn-ghost">全部文章 →</a>
         </div>
-        <div class="post-list post-list--cards">
-          {{range $i, $p := .Posts}}
-            <div data-reveal {{if lt $i 4}}data-reveal-delay="{{$i}}"{{end}}>
-              {{template "post-card" $p}}
-            </div>
-          {{end}}
+        <div class="blist blist--3" data-reveal data-reveal-delay="1">
+          {{range .Posts}}{{template "list-card" .}}{{end}}
         </div>
       </section>
       {{end}}

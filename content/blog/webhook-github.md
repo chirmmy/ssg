@@ -5,6 +5,7 @@ pubDate: 2025-07-23
 updated: 2025-07-23
 tags: [自动化工具, Github]
 draft: false
+cover: https://qiniu.anburger.site/cover/Tech.webp
 ---
 
 :sunny: 场景：`Github`中代码更新后自动推送到服务器并部署
